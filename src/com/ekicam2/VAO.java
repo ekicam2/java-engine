@@ -1,0 +1,71 @@
+package com.ekicam2;
+
+import org.lwjgl.opengl.GL45;
+
+public class VAO {
+    private int Handle;
+
+    private int PosVBO;
+
+    private int IndVBO;
+    private int IndicesCount;
+
+    public VAO() {
+        Handle = GL45.glGenVertexArrays();
+
+        float vert[] = {
+                -0.5f, -0.5f, 0.0f,
+                0.5f, -0.5f, 0.0f,
+                0.0f, 0.5f, 0.0f
+        };
+        SetVertices(vert);
+
+        int indices[] = { 0, 1, 2};
+        SetIndices(indices);
+    }
+
+    public VAO(float Vertices[], int Indices[]) {
+        Handle = GL45.glGenVertexArrays();
+
+        SetVertices(Vertices);
+        SetIndices(Indices);
+    }
+
+    public void Delete() {
+        GL45.glDeleteBuffers(PosVBO);
+        GL45.glDeleteBuffers(IndVBO);
+        GL45.glDeleteVertexArrays(Handle);
+    }
+
+    public void Draw(){
+        GL45.glBindVertexArray(Handle);
+        GL45.glDrawElementsBaseVertex(GL45.GL_TRIANGLES, IndicesCount, GL45.GL_UNSIGNED_INT, 0L, 0);
+    }
+
+    private void SetVertices(float[] Vertices) {
+        GL45.glBindVertexArray(Handle);
+
+        PosVBO = GL45.glGenBuffers();
+
+        GL45.glBindBuffer(GL45.GL_ARRAY_BUFFER, PosVBO);
+        GL45.glBufferData(GL45.GL_ARRAY_BUFFER, Vertices, GL45.GL_STATIC_DRAW);
+        GL45.glEnableVertexAttribArray(0);
+        GL45.glVertexAttribPointer(0, 3, GL45.GL_FLOAT, false, 0, 0L);
+
+        GL45.glBindVertexArray(0);
+    }
+
+    private void SetIndices(int[] Indices) {
+        GL45.glBindVertexArray(Handle);
+
+        IndicesCount = Indices.length;
+        IndVBO = GL45.glGenBuffers();
+
+        GL45.glBindBuffer(GL45.GL_ELEMENT_ARRAY_BUFFER, IndVBO);
+        GL45.glBufferData(GL45.GL_ELEMENT_ARRAY_BUFFER, Indices, GL45.GL_STATIC_DRAW);
+        GL45.glEnableVertexAttribArray(1);
+        GL45.glVertexAttribPointer(1, 3, GL45.GL_UNSIGNED_INT, false, 0,0L);
+
+        GL45.glBindVertexArray(0);
+    }
+}
