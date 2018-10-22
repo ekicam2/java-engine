@@ -2,13 +2,10 @@ package com.ekicam2;
 
 import org.lwjgl.assimp.*;
 
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 
 import static org.lwjgl.assimp.Assimp.*;
 import static org.lwjgl.system.MemoryUtil.*;
@@ -81,7 +78,8 @@ public class FBXLoader {
         };
 
         FileHandle.set(FileOpenProc, FileCloseProc, NULL);
-        AIScene Scene = aiImportFileEx(PathToFile, aiProcess_JoinIdenticalVertices | aiProcess_Triangulate | aiProcess_MakeLeftHanded, FileHandle);
+        int Flags = aiProcess_JoinIdenticalVertices | aiProcess_Triangulate | aiProcess_MakeLeftHanded;
+        AIScene Scene = aiImportFileEx(PathToFile, Flags, FileHandle);
         if(Scene == null) {
             System.err.println("Could not load file: " + PathToFile);
         }
