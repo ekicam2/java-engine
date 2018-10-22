@@ -48,10 +48,10 @@ public class Model {
                 Indices[j * 3 + 1] = IndicesBuffer.get(1);
                 Indices[j * 3 + 2] = IndicesBuffer.get(2);
 
-                System.out.println("f " + IndicesBuffer.get(0) + "/" + IndicesBuffer.get(1) + "/" + IndicesBuffer.get(2));
+                //System.out.println("f " + IndicesBuffer.get(0) + "/" + IndicesBuffer.get(1) + "/" + IndicesBuffer.get(2));
             }
 
-            VAOs.add(new VAO(Vertices, Indices));
+            VAOs.add(new VAO(Vertices));//, Indices));
         }
     }
 

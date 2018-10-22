@@ -95,7 +95,8 @@ public final class Engine {
 
         VAO tris = new VAO();
         Material mat = new Material();
-        Model model = FBXLoader.LoadFBX("resources\\Models\\OBJ format\\chest.obj");
+        Model model = FBXLoader.LoadFBX("resources\\Models\\FBX format\\chest.fbx");
+        //Model model = FBXLoader.LoadFBX("resources\\spider.fbx");
 
         var view = new Matrix4f()
                 .lookAtLH(0.0f, 0.0f, -150.0f,
@@ -103,18 +104,29 @@ public final class Engine {
                         0.0f, 1.0f, 0.0f);
         var proj = new Matrix4f().perspectiveLH((float) Math.toRadians(5.0f), 1.0f, 1.01f, 1000.0f);
 
-        var mvp = proj.mul(view);
+        var vp = new Matrix4f();
+        proj.mul(view, vp);
+
         // Run the rendering loop until the user has attempted to close
         // the window or has pressed the ESCAPE key.
         while ( !glfwWindowShouldClose(window) ) {
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // clear the framebuffer
 
             mat.Bind();
-            model.Transform.SetPosition(new Vector3f(0.0f, 0.0f, 0.0f));
+            model.Transform.SetPosition(new Vector3f(0.0f, 5.0f, 10.0f));
 
 
-            mat.BindUniform("mvp", mvp);
+            Vector3f rot = new Vector3f();
+            model.Transform.GetRotation().getEulerAnglesXYZ(rot);
+            rot.z += 34.f;
+            model.Transform.SetRotation(rot);
+
+            mat.BindUniform("mvp", vp);
             tris.Draw();
+
+            Matrix4f mvp = new Matrix4f();
+            vp.mul(model.Transform.GetModel(), mvp);
+            mat.BindUniform("mvp", mvp);
             model.Draw();
 
             glfwSwapBuffers(window); // swap the color buffers

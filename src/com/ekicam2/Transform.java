@@ -10,11 +10,11 @@ public class Transform {
     //TODO: scale maybe :P
     private Vector3f Position = new Vector3f();
     private Quaternionf Rotation = new Quaternionf();
-    private boolean bDirty = true;
+    private boolean bDirty = false;
 
     private Matrix4f Model = new Matrix4f();
 
-    public void SetPosition(Vector3f InPosition) { Position = InPosition; }
+    public void SetPosition(Vector3f InPosition) { Position = InPosition; bDirty = true; }
     public Vector3f GetPosition() { return Position; }
 
     public void SetRotation(Vector3f InRotation){
@@ -36,7 +36,12 @@ public class Transform {
     }
 
     protected void Recalculate() {
-        Model.transform(new Vector4f(Position, 1.0f)).rotate(Rotation);
+        Model.setTranslation(Position);
+
+        Vector3f RotationEuler = new Vector3f();
+        Rotation.getEulerAnglesXYZ(RotationEuler);
+        Model.setRotationXYZ(RotationEuler.x, RotationEuler.y, RotationEuler.z);
+
         bDirty = false;
     }
 
