@@ -6,9 +6,10 @@ public class VAO {
     private int Handle;
 
     private int PosVBO;
+    private int VerticesCount = 0;
 
     private int IndVBO;
-    private int IndicesCount;
+    private int IndicesCount = 0;
 
     public VAO() {
         Handle = GL45.glGenVertexArrays();
@@ -31,6 +32,12 @@ public class VAO {
         SetIndices(Indices);
     }
 
+    public VAO(float Vertices[]) {
+        Handle = GL45.glGenVertexArrays();
+
+        SetVertices(Vertices);
+    }
+
     public void Delete() {
         GL45.glDeleteBuffers(PosVBO);
         GL45.glDeleteBuffers(IndVBO);
@@ -39,12 +46,19 @@ public class VAO {
 
     public void Draw(){
         GL45.glBindVertexArray(Handle);
-        GL45.glDrawElementsBaseVertex(GL45.GL_TRIANGLES, IndicesCount, GL45.GL_UNSIGNED_INT, 0L, 0);
+        if(IndicesCount != 0) {
+            GL45.glPolygonMode(GL45.GL_FRONT_AND_BACK, GL45.GL_FILL);
+            GL45.glDrawElementsBaseVertex(GL45.GL_TRIANGLES, IndicesCount, GL45.GL_UNSIGNED_INT, 0L, 0);
+        } else {
+            GL45.glPolygonMode(GL45.GL_FRONT_AND_BACK, GL45.GL_LINE);
+            GL45.glDrawArrays(GL45.GL_TRIANGLES, 0, VerticesCount * 2);
+        }
     }
 
     private void SetVertices(float[] Vertices) {
         GL45.glBindVertexArray(Handle);
 
+        VerticesCount = Vertices.length;
         PosVBO = GL45.glGenBuffers();
 
         GL45.glBindBuffer(GL45.GL_ARRAY_BUFFER, PosVBO);

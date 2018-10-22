@@ -1,5 +1,7 @@
 package com.ekicam2;
 
+import org.joml.Matrix4f;
+import org.joml.Vector3f;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.opengl.GL;
@@ -18,6 +20,7 @@ import static org.lwjgl.system.MemoryUtil.NULL;
 public final class Engine {
     // The window handle
     private long window;
+    private InputHandler InputHandler = new InputHandler(this);
 
     public boolean Init() {
         // Setup an error callback. The default implementation
@@ -34,14 +37,18 @@ public final class Engine {
         glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE); // the window will be resizable
 
         // Create the window
-        window = glfwCreateWindow(300, 300, "Hello World!", NULL, NULL);
+        window = glfwCreateWindow(1080, 1080, "Hello World!", NULL, NULL);
         if ( window == NULL )
             throw new RuntimeException("Failed to create the GLFW window");
 
         // Setup a key callback. It will be called every time a key is pressed, repeated or released.
         glfwSetKeyCallback(window, (window, key, scancode, action, mods) -> {
+
+            //TODO: someday :)
             if ( key == GLFW_KEY_ESCAPE && action == GLFW_RELEASE )
                 glfwSetWindowShouldClose(window, true); // We will detect this in the rendering loop
+            else
+                InputHandler.HandleGLFWInputs(key);
         });
 
         // Get the thread stack and push a new frame
@@ -88,14 +95,27 @@ public final class Engine {
 
         VAO tris = new VAO();
         Material mat = new Material();
+        Model model = FBXLoader.LoadFBX("resources\\Models\\OBJ format\\chest.obj");
 
+        var view = new Matrix4f()
+                .lookAtLH(0.0f, 0.0f, -150.0f,
+                        0.0f, 0.0f, 0.0f,
+                        0.0f, 1.0f, 0.0f);
+        var proj = new Matrix4f().perspectiveLH((float) Math.toRadians(5.0f), 1.0f, 1.01f, 1000.0f);
+
+        var mvp = proj.mul(view);
         // Run the rendering loop until the user has attempted to close
         // the window or has pressed the ESCAPE key.
         while ( !glfwWindowShouldClose(window) ) {
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // clear the framebuffer
 
             mat.Bind();
+            model.Transform.SetPosition(new Vector3f(0.0f, 0.0f, 0.0f));
+
+
+            mat.BindUniform("mvp", mvp);
             tris.Draw();
+            model.Draw();
 
             glfwSwapBuffers(window); // swap the color buffers
 

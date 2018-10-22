@@ -1,6 +1,10 @@
 package com.ekicam2;
 
+import org.joml.Matrix4f;
+import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL45;
+
+import java.nio.FloatBuffer;
 
 
 public class Material {
@@ -34,6 +38,17 @@ public class Material {
 
     public void BindAttrib(int Index, String AttribName) {
         GL45.glBindAttribLocation(Handle, Index, AttribName);
+    }
+
+    public void BindUniform(String Name, Matrix4f InMatrix) {
+        Bind();
+        int Location = GL45.glGetUniformLocation(Handle, Name);
+        if(Location != -1)
+        {
+            FloatBuffer Buffer = BufferUtils.createFloatBuffer(16);;
+            InMatrix.get(Buffer);
+            GL45.glUniformMatrix4fv(Location, false, Buffer);
+        }
     }
 
     public boolean Link() {

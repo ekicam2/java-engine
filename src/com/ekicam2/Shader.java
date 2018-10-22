@@ -20,8 +20,11 @@ public class Shader {
                 Handle = GL45.glCreateShader(GL45.GL_VERTEX_SHADER);
                 String VertexSource = "#version 330 core \n" +
                         "layout (location = 0) in vec3 position; \n" +
+                        "uniform mat4 mvp; \n" +
+                        "out vec3 vcolor; \n" +
                         "void main() { \n" +
-                        "gl_Position = vec4(position, 1.0f); \n" +
+                        "vcolor = position; \n" +
+                        "gl_Position = mvp * vec4(position, 1.0f); \n" +
                         "}";
 
                 GL45.glShaderSource(Handle, VertexSource);
@@ -31,8 +34,9 @@ public class Shader {
 
                 String FragmentSource = "#version 330 core \n" +
                         "out vec3 color; \n" +
+                        "in vec3 vcolor; \n" +
                         "void main() { \n" +
-                        "color = vec3(0.2f, 1.0f, 0.7f); \n" +
+                        "color = vcolor; \n" +
                         "} \n";
                 GL45.glShaderSource(Handle, FragmentSource);
                 break;
@@ -44,7 +48,17 @@ public class Shader {
     public Shader(Shader.Type Type, String ShaderSource) {
         ShaderType = Type;
 
+        switch(ShaderType) {
+            case Vertex:
+                Handle = GL45.glCreateShader(GL45.GL_VERTEX_SHADER);
+                break;
+            case Fragment:
+                Handle = GL45.glCreateShader(GL45.GL_FRAGMENT_SHADER);
+                break;
+        }
 
+        GL45.glShaderSource(Handle, ShaderSource);
+        Compile();
     }
 
     public boolean Compile() {
