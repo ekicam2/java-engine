@@ -3,9 +3,9 @@ package com.ekicam2;
 import org.joml.*;
 
 public class Transform {
-    public final static Vector3f UP = new Vector3f(0.0f, 0.0f, 1.0f);
-    public final static Vector3f RIGHT = new Vector3f(0.0f, 1.0f, 0.0f);
-    public final static Vector3f FORWARD = new Vector3f(1.0f, 0.0f, 0.0f);
+    public final static Vector3f UP = new Vector3f(0.0f, 1.0f, 0.0f);
+    public final static Vector3f RIGHT = new Vector3f(1.0f, 0.0f, 0.0f);
+    public final static Vector3f FORWARD = new Vector3f(0.0f, .0f, 1.0f);
 
     //TODO: scale maybe :P
     private Vector3f Position = new Vector3f();
@@ -17,15 +17,32 @@ public class Transform {
     public void SetPosition(Vector3f InPosition) { Position = InPosition; bDirty = true; }
     public Vector3f GetPosition() { return Position; }
 
+    public void Translate(Vector3f InOffset) {
+        Position.x += InOffset.x;
+        Position.y += InOffset.y;
+        Position.z += InOffset.z;
+
+        bDirty = true;
+    }
+
     public void SetRotation(Vector3f InRotation){
-        var X = new Quaternionf().fromAxisAngleDeg(UP, InRotation.x);
-        var Y = new Quaternionf().fromAxisAngleDeg(RIGHT, InRotation.y);
+        var X = new Quaternionf().fromAxisAngleDeg(RIGHT, InRotation.x);
+        var Y = new Quaternionf().fromAxisAngleDeg(UP, InRotation.y);
         var Z = new Quaternionf().fromAxisAngleDeg(FORWARD, InRotation.z);
 
         Rotation = Z.mul(Y).mul(X);
         bDirty = true;
     }
-    public Quaternionf GetRotation() { return Rotation; }
+
+    public Vector3f GetRotation() {
+        Vector3f RotationToReturn = new Vector3f();
+        Rotation.getEulerAnglesXYZ(RotationToReturn);
+        return RotationToReturn;
+    }
+
+    public void RotateBy(Vector3f RotationAngles) {
+            //TODO: implement
+    }
 
     public Matrix4f GetModel() {
         if(bDirty) {

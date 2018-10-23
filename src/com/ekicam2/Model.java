@@ -31,9 +31,9 @@ public class Model {
             float Vertices[] = new float[VerticesBuffer.capacity() * 3];
             for(int j = 0; j < VerticesBuffer.capacity(); ++j) {
                 AIVector3D VectorToAdd = VerticesBuffer.get(j);
-                Vertices[j] = VectorToAdd.x();
-                Vertices[j + 1] = VectorToAdd.y();
-                Vertices[j + 2] = VectorToAdd.z();
+                Vertices[j * 3] = VectorToAdd.x();
+                Vertices[j * 3 + 1] = VectorToAdd.y();
+                Vertices[j * 3 + 2] = VectorToAdd.z();
             }
 
             AIFace.Buffer FaceBuffer = Mesh.mFaces();
@@ -48,10 +48,10 @@ public class Model {
                 Indices[j * 3 + 1] = IndicesBuffer.get(1);
                 Indices[j * 3 + 2] = IndicesBuffer.get(2);
 
-                //System.out.println("f " + IndicesBuffer.get(0) + "/" + IndicesBuffer.get(1) + "/" + IndicesBuffer.get(2));
+                // System.out.println("f " + IndicesBuffer.get(0) + "/" + IndicesBuffer.get(1) + "/" + IndicesBuffer.get(2));
             }
 
-            VAOs.add(new VAO(Vertices));//, Indices));
+            VAOs.add(new VAO(Vertices, Indices));
         }
     }
 

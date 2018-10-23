@@ -50,8 +50,12 @@ public class VAO {
             GL45.glPolygonMode(GL45.GL_FRONT_AND_BACK, GL45.GL_FILL);
             GL45.glDrawElementsBaseVertex(GL45.GL_TRIANGLES, IndicesCount, GL45.GL_UNSIGNED_INT, 0L, 0);
         } else {
+            GL45.glPointSize(4.5f);
+            GL45.glPolygonMode(GL45.GL_FRONT_AND_BACK, GL45.GL_POINT);
+            GL45.glDrawArrays(GL45.GL_TRIANGLES, 0, VerticesCount);
+
             GL45.glPolygonMode(GL45.GL_FRONT_AND_BACK, GL45.GL_LINE);
-            GL45.glDrawArrays(GL45.GL_TRIANGLES, 0, VerticesCount * 2);
+            GL45.glDrawArrays(GL45.GL_TRIANGLES, 0, VerticesCount);
         }
     }
 

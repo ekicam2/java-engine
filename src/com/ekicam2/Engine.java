@@ -1,6 +1,7 @@
 package com.ekicam2;
 
 import org.joml.Matrix4f;
+import org.joml.Quaternionf;
 import org.joml.Vector3f;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.glfw.GLFWVidMode;
@@ -91,12 +92,13 @@ public final class Engine {
 
         // Set the clear color
         glClearColor(0.60f, 0.20f, 0.70f, 0.0f);
-        // glDisable(GL_CULL_FACE);
+        glEnable(GL_DEPTH_TEST);
 
         VAO tris = new VAO();
         Material mat = new Material();
-        Model model = FBXLoader.LoadFBX("resources\\Models\\FBX format\\chest.fbx");
+        Model model = FBXLoader.LoadFBX("resources\\Models\\FBX format\\bottle.fbx");
         //Model model = FBXLoader.LoadFBX("resources\\spider.fbx");
+        model.Transform.SetPosition(new Vector3f(0.0f, 0.0f, 0.0f));
 
         var view = new Matrix4f()
                 .lookAtLH(0.0f, 0.0f, -150.0f,
@@ -113,13 +115,9 @@ public final class Engine {
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // clear the framebuffer
 
             mat.Bind();
-            model.Transform.SetPosition(new Vector3f(0.0f, 5.0f, 10.0f));
 
-
-            Vector3f rot = new Vector3f();
-            model.Transform.GetRotation().getEulerAnglesXYZ(rot);
-            rot.z += 34.f;
-            model.Transform.SetRotation(rot);
+            // model.Transform.Translate(new Vector3f(0.03f, 0.0f, 0.0f));
+            // model.Transform.GetRotation().fromAxisAngleDeg(Transform.UP, i);
 
             mat.BindUniform("mvp", vp);
             tris.Draw();

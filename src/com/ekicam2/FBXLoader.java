@@ -78,8 +78,9 @@ public class FBXLoader {
         };
 
         FileHandle.set(FileOpenProc, FileCloseProc, NULL);
-        int Flags = aiProcess_JoinIdenticalVertices | aiProcess_Triangulate | aiProcess_OptimizeMeshes;
-        AIScene Scene = aiImportFileEx(PathToFile, Flags, FileHandle);
+        int Flags = aiProcess_JoinIdenticalVertices | aiProcess_Triangulate | aiProcess_MakeLeftHanded | aiProcess_OptimizeMeshes;
+        //AIScene Scene = aiImportFile(PathToFile, Flags);
+        AIScene Scene = aiImportFileEx(PathToFile, 0, FileHandle);
         if(Scene == null) {
             System.err.println("Could not load file: " + PathToFile);
         }
