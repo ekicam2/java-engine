@@ -99,6 +99,7 @@ public final class Engine {
         Model model = FBXLoader.LoadFBX("resources\\Models\\FBX format\\bottle.fbx");
         //Model model = FBXLoader.LoadFBX("resources\\spider.fbx");
         model.Transform.SetPosition(new Vector3f(0.0f, 0.0f, 0.0f));
+        model.Transform.SetRotation(new Vector3f(0.0f, 0.0f, 30.0f));
 
         var view = new Matrix4f()
                 .lookAtLH(0.0f, 0.0f, -150.0f,
@@ -117,7 +118,9 @@ public final class Engine {
             mat.Bind();
 
             // model.Transform.Translate(new Vector3f(0.03f, 0.0f, 0.0f));
-            // model.Transform.GetRotation().fromAxisAngleDeg(Transform.UP, i);
+            Vector3f Rotation = model.Transform.GetRotation();
+            Rotation.z += 20.0f;
+            model.Transform.SetRotation(Rotation);
 
             mat.BindUniform("mvp", vp);
             tris.Draw();

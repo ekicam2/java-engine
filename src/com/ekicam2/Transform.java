@@ -2,6 +2,8 @@ package com.ekicam2;
 
 import org.joml.*;
 
+import java.lang.Math;
+
 public class Transform {
     public final static Vector3f UP = new Vector3f(0.0f, 1.0f, 0.0f);
     public final static Vector3f RIGHT = new Vector3f(1.0f, 0.0f, 0.0f);
@@ -30,13 +32,18 @@ public class Transform {
         var Y = new Quaternionf().fromAxisAngleDeg(UP, InRotation.y);
         var Z = new Quaternionf().fromAxisAngleDeg(FORWARD, InRotation.z);
 
-        Rotation = Z.mul(Y).mul(X);
+        Rotation = Z.premul(Y).premul(X);
         bDirty = true;
     }
 
     public Vector3f GetRotation() {
         Vector3f RotationToReturn = new Vector3f();
         Rotation.getEulerAnglesXYZ(RotationToReturn);
+
+        RotationToReturn.x = (float) Math.toDegrees(RotationToReturn.x);
+        RotationToReturn.y = (float) Math.toDegrees(RotationToReturn.y);
+        RotationToReturn.z = (float) Math.toDegrees(RotationToReturn.z);
+
         return RotationToReturn;
     }
 
