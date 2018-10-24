@@ -10,11 +10,16 @@ public class Transform {
     public final static Vector3f FORWARD = new Vector3f(0.0f, .0f, 1.0f);
 
     //TODO: scale maybe :P
+    private Matrix4f Model = new Matrix4f();
+
     private Vector3f Position = new Vector3f();
+    // had to introduce this value because of strange bug around 89.98 deg
+    // while using RotateBy on Y axis
+    private Vector3f RotationHelper = new Vector3f();
     private Quaternionf Rotation = new Quaternionf();
+
     private boolean bDirty = false;
 
-    private Matrix4f Model = new Matrix4f();
 
     public void SetPosition(Vector3f InPosition) { Position = InPosition; bDirty = true; }
     public Vector3f GetPosition() { return Position; }
@@ -32,6 +37,8 @@ public class Transform {
         var Y = new Quaternionf().fromAxisAngleDeg(UP, InRotation.y);
         var Z = new Quaternionf().fromAxisAngleDeg(FORWARD, InRotation.z);
 
+        RotationHelper = InRotation;
+
         Rotation = Z.premul(Y).premul(X);
         bDirty = true;
     }
@@ -48,7 +55,10 @@ public class Transform {
     }
 
     public void RotateBy(Vector3f RotationAngles) {
-            //TODO: implement
+        RotationHelper.x += RotationAngles.x;
+        RotationHelper.y += RotationAngles.y;
+        RotationHelper.z += RotationAngles.z;
+        SetRotation(RotationHelper);
     }
 
     public Matrix4f GetModel() {
