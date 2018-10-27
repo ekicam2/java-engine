@@ -13,24 +13,38 @@ public class Model {
     public Transform Transform = new Transform();
     public AIScene Scene;
     private List<Mesh> Meshes;
+    private List<Material> Materials;
 
     public Model(AIScene InScene) {
         Scene = InScene;
         Meshes = new ArrayList<>();
 
-        int meshCount = Scene.mNumMeshes();
+        int MeshCount = Scene.mNumMeshes();
+
+        Materials = new ArrayList<>(MeshCount);
+
         PointerBuffer MeshesBuffer = Scene.mMeshes();
 
-        for (int i = 0; i < meshCount; ++i) {
+        for (int i = 0; i < MeshCount; ++i) {
             AIMesh Mesh = AIMesh.create(MeshesBuffer.get(i));
             Meshes.add(new Mesh(Mesh));
         }
+
     }
 
-    public void Draw() {
-        for(Mesh Mesh : Meshes) {
-            Mesh.Draw();
+    public boolean SetMaterial(int MaterialIndex, Material MaterialToSet)
+    {
+        if(Materials.size() > 0 && MaterialIndex < Materials.size())
+        {
+            Materials.set(MaterialIndex, MaterialToSet);
+            return true;
         }
+
+        return false;
+    }
+
+    public List<Mesh> GetMeshes() {
+        return Meshes;
     }
 
     public void Free() {

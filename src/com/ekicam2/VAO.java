@@ -44,6 +44,22 @@ public class VAO {
         GL45.glDeleteVertexArrays(Handle);
     }
 
+    public void Bind() {
+        GL45.glBindVertexArray(Handle);
+    }
+
+    public static void Unbind() {
+        GL45.glBindVertexArray(0);
+    }
+
+    public int GetIndicesCount() {
+        return IndicesCount;
+    }
+
+    public int GetVerticesCount() {
+        return VerticesCount;
+    }
+
     public void Draw(){
         GL45.glBindVertexArray(Handle);
         if(IndicesCount != 0) {

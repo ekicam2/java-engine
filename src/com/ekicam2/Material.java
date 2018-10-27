@@ -26,6 +26,7 @@ public class Material {
         Handle = GL45.glCreateProgram();
         AddShader(VertexShader);
         AddShader(FragmentShader);
+        Link();
     }
 
 
@@ -58,7 +59,7 @@ public class Material {
         if (programLog.trim().length() > 0) {
             System.err.println(programLog);
 
-            GL45.glDeleteShader(Handle);
+            GL45.glDeleteProgram(Handle);
             return false;
         }
 

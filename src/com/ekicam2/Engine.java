@@ -7,7 +7,15 @@ import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.system.MemoryStack;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.nio.IntBuffer;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Currency;
+import java.util.List;
 
 import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
 import static org.lwjgl.glfw.GLFW.*;
@@ -93,38 +101,40 @@ public final class Engine {
         glClearColor(0.60f, 0.20f, 0.70f, 0.0f);
         glEnable(GL_DEPTH_TEST);
 
-        VAO tris = new VAO();
+        /* debug playground */
+
+        Shader vsShader = null;
+        Shader fsShader = null;
+        try {
+            vsShader = new Shader(Shader.Type.Fragment, new String(Files.readAllBytes(Paths.get("resources\\Shaders\\SimpleFragment.fs")), StandardCharsets.UTF_8));
+            fsShader = new Shader(Shader.Type.Vertex, new String(Files.readAllBytes(Paths.get("resources\\Shaders\\SimpleVertex.vs")), StandardCharsets.UTF_8));
+        } catch (Exception e) {
+            System.err.println(e.getMessage());
+        }
+
         Material mat = new Material();
-        Model model = FBXLoader.LoadFBX("resources\\Models\\FBX format\\bottle.fbx");
-        //Model model = FBXLoader.LoadFBX("resources\\spider.fbx");
-        model.Transform.SetPosition(new Vector3f(0.0f, 0.0f, 0.0f));
-        //model.Transform.SetRotation(new Vector3f(0.0f, 0.0f, 30.0f));
+        Material newmat = new Material(vsShader, fsShader);
 
-        var view = new Matrix4f()
-                .lookAtLH(0.0f, 0.0f, -150.0f,
-                        0.0f, 0.0f, 0.0f,
-                        0.0f, 1.0f, 0.0f);
-        var proj = new Matrix4f().perspectiveLH((float) Math.toRadians(5.0f), 1.0f, 1.01f, 1000.0f);
+        List<Model> ModelsToRender = new ArrayList<>();
 
-        var vp = new Matrix4f();
-        proj.mul(view, vp);
+        ModelsToRender.add(MeshLoader.LoadFBX("resources\\Models\\FBX format\\bottle.fbx"));
+        ModelsToRender.add(MeshLoader.LoadFBX("resources\\Models\\FBX format\\chest.fbx"));
+
+        Camera CurrCamera = new Camera();
+        Renderer Renderer = new Renderer();
+        Renderer.CurrentMaterial = mat;
+
+        /* debug playground end */
 
         // Run the rendering loop until the user has attempted to close
         // the window or has pressed the ESCAPE key.
         while ( !glfwWindowShouldClose(window) ) {
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // clear the framebuffer
 
-            mat.Bind();
-
-            model.Transform.RotateBy(new Vector3f(0.0f, 1.0f, 0.0f));
-
-            mat.BindUniform("mvp", vp);
-            tris.Draw();
-
-            Matrix4f mvp = new Matrix4f();
-            vp.mul(model.Transform.GetModel(), mvp);
-            mat.BindUniform("mvp", mvp);
-            model.Draw();
+            /* debug playground */
+            newmat.Bind();
+            Renderer.DrawModels(CurrCamera, ModelsToRender);
+            /* debug playground end */
 
             glfwSwapBuffers(window); // swap the color buffers
 
@@ -133,8 +143,7 @@ public final class Engine {
             glfwPollEvents();
         }
 
-        tris.Delete();
-        model.Free();
+        ModelsToRender.forEach((model -> model.Free()));
     }
 
     public void Terminate() {

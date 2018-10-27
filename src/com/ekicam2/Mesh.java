@@ -8,6 +8,7 @@ import java.nio.IntBuffer;
 
 public class Mesh {
     private VAO VAO;
+    private int MaterialIndex;
 
     public Mesh(AIMesh Mesh) {
         AIVector3D.Buffer VerticesBuffer = Mesh.mVertices();
@@ -34,10 +35,17 @@ public class Mesh {
             // System.out.println("f " + IndicesBuffer.get(0) + "/" + IndicesBuffer.get(1) + "/" + IndicesBuffer.get(2));
         }
 
+        MaterialIndex = Mesh.mMaterialIndex();
+
         VAO = new VAO(Vertices, Indices);
     }
 
-    public void Draw() {
-        VAO.Draw();
+    public VAO GetVAO() {
+        return VAO;
+    }
+
+    public int GetMaterialIndex()
+    {
+        return MaterialIndex;
     }
 }
