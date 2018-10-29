@@ -1,4 +1,4 @@
-package com.ekicam2;
+package com.ekicam2.Engine.Rendering;
 
 import org.lwjgl.opengl.GL45;
 

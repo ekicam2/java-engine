@@ -1,20 +1,18 @@
-package com.ekicam2;
+package com.ekicam2.Engine;
 
-import org.joml.Matrix4f;
-import org.joml.Vector3f;
+import com.ekicam2.Engine.Editor.EditorInputHandler;
+import com.ekicam2.Engine.EngineUtils.MeshLoader;
+import com.ekicam2.Engine.Rendering.Camera;
+import com.ekicam2.Engine.Rendering.Material;
+import com.ekicam2.Engine.Rendering.Model;
+import com.ekicam2.Engine.Rendering.Renderer;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.system.MemoryStack;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.nio.IntBuffer;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Currency;
 import java.util.List;
 
 import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
@@ -28,7 +26,8 @@ import static org.lwjgl.system.MemoryUtil.NULL;
 public final class Engine {
     // The window handle
     private long window;
-    private InputHandler InputHandler = new InputHandler(this);
+    private InputHandler InputHandler = new EditorInputHandler(this);
+    private Renderer MainRenderer;
 
     public boolean Init() {
         // Setup an error callback. The default implementation
@@ -51,12 +50,7 @@ public final class Engine {
 
         // Setup a key callback. It will be called every time a key is pressed, repeated or released.
         glfwSetKeyCallback(window, (window, key, scancode, action, mods) -> {
-
-            //TODO: someday :)
-            if ( key == GLFW_KEY_ESCAPE && action == GLFW_RELEASE )
-                glfwSetWindowShouldClose(window, true); // We will detect this in the rendering loop
-            else
-                InputHandler.HandleGLFWInputs(key);
+            InputHandler.HandleGLFWInputs(window, key, scancode, action, mods);
         });
 
         // Get the thread stack and push a new frame
@@ -86,10 +80,6 @@ public final class Engine {
         // Make the window visible
         glfwShowWindow(window);
 
-        return true;
-    }
-
-    public void Run() {
         // This line is critical for LWJGL's interoperation with GLFW's
         // OpenGL context, or any context that is managed externally.
         // LWJGL detects the context that is current in the current thread,
@@ -97,33 +87,29 @@ public final class Engine {
         // bindings available for use.
         GL.createCapabilities();
 
+        MainRenderer = new Renderer();
+
+        return true;
+    }
+
+    public void Run() {
         // Set the clear color
         glClearColor(0.60f, 0.20f, 0.70f, 0.0f);
         glEnable(GL_DEPTH_TEST);
 
         /* debug playground */
-
-        Shader vsShader = null;
-        Shader fsShader = null;
-        try {
-            vsShader = new Shader(Shader.Type.Fragment, new String(Files.readAllBytes(Paths.get("resources\\Shaders\\SimpleFragment.fs")), StandardCharsets.UTF_8));
-            fsShader = new Shader(Shader.Type.Vertex, new String(Files.readAllBytes(Paths.get("resources\\Shaders\\SimpleVertex.vs")), StandardCharsets.UTF_8));
-        } catch (Exception e) {
-            System.err.println(e.getMessage());
-        }
-
         Material mat = new Material();
-        Material newmat = new Material(vsShader, fsShader);
 
         List<Model> ModelsToRender = new ArrayList<>();
 
         ModelsToRender.add(MeshLoader.LoadFBX("resources\\Models\\FBX format\\bottle.fbx"));
-        ModelsToRender.add(MeshLoader.LoadFBX("resources\\Models\\FBX format\\chest.fbx"));
+        ModelsToRender.add(MeshLoader.LoadFBX("resources\\Models\\FBX format\\cannonBall.fbx"));
+        //ModelsToRender.get(1).Transform.SetRotation(new Vector3f(180.0f, -45.0f, 0.0f));
+        //ModelsToRender.get(1).Transform.SetPosition(new Vector3f(0.0f, 0.0f, 100.0f));
+        ModelsToRender.get(0).SetMaterial(0, mat);
 
         Camera CurrCamera = new Camera();
-        Renderer Renderer = new Renderer();
-        Renderer.CurrentMaterial = mat;
-
+        // MainRenderer.Mode = Renderer.RenderMode.Wireframe;
         /* debug playground end */
 
         // Run the rendering loop until the user has attempted to close
@@ -132,8 +118,7 @@ public final class Engine {
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // clear the framebuffer
 
             /* debug playground */
-            newmat.Bind();
-            Renderer.DrawModels(CurrCamera, ModelsToRender);
+            MainRenderer.DrawModels(CurrCamera, ModelsToRender);
             /* debug playground end */
 
             glfwSwapBuffers(window); // swap the color buffers

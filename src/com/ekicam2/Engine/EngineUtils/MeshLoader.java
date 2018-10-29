@@ -1,5 +1,6 @@
-package com.ekicam2;
+package com.ekicam2.Engine.EngineUtils;
 
+import com.ekicam2.Engine.Rendering.Model;
 import org.lwjgl.assimp.*;
 
 import java.io.FileInputStream;
@@ -11,7 +12,7 @@ import static org.lwjgl.assimp.Assimp.*;
 import static org.lwjgl.system.MemoryUtil.*;
 
 public class MeshLoader {
-    static Model LoadFBX(String PathToFile) {
+    public static Model LoadFBX(String PathToFile) {
         AIFileIO FileHandle = AIFileIO.create();
 
         AIFileOpenProcI FileOpenProc = new AIFileOpenProc() {
@@ -80,7 +81,7 @@ public class MeshLoader {
         FileHandle.set(FileOpenProc, FileCloseProc, NULL);
         int Flags = aiProcess_JoinIdenticalVertices | aiProcess_Triangulate | aiProcess_MakeLeftHanded | aiProcess_OptimizeMeshes;
         //AIScene Scene = aiImportFile(PathToFile, Flags);
-        AIScene Scene = aiImportFileEx(PathToFile, 0, FileHandle);
+        AIScene Scene = aiImportFileEx(PathToFile, Flags, FileHandle);
         if(Scene == null) {
             System.err.println("Could not load file: " + PathToFile);
         }
@@ -88,7 +89,7 @@ public class MeshLoader {
         return new Model(Scene);
     }
 
-    static Model LoadOBJ(String PathToFile) {
+    public static Model LoadOBJ(String PathToFile) {
         AIFileIO FileHandle = AIFileIO.create();
 
         AIFileOpenProcI FileOpenProc = new AIFileOpenProc() {

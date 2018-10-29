@@ -1,5 +1,6 @@
-package com.ekicam2;
+package com.ekicam2.Engine.Rendering;
 
+import com.ekicam2.Engine.Transform;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.assimp.AIMesh;
 import org.lwjgl.assimp.AIScene;
@@ -10,7 +11,7 @@ import java.util.List;
 import static org.lwjgl.assimp.Assimp.aiReleaseImport;
 
 public class Model {
-    public Transform Transform = new Transform();
+    public com.ekicam2.Engine.Transform Transform = new Transform();
     public AIScene Scene;
     private List<Mesh> Meshes;
     private List<Material> Materials;
@@ -22,6 +23,9 @@ public class Model {
         int MeshCount = Scene.mNumMeshes();
 
         Materials = new ArrayList<>(MeshCount);
+        for(int i = 0; i < MeshCount; ++i) {
+            Materials.add(null);
+        }
 
         PointerBuffer MeshesBuffer = Scene.mMeshes();
 
@@ -41,6 +45,13 @@ public class Model {
         }
 
         return false;
+    }
+
+    public Material GetMaterial(int MaterialIndex) {
+        if(Materials.size() > 0 && MaterialIndex < Materials.size()) {
+            return Materials.get(MaterialIndex);
+        }
+        return null;
     }
 
     public List<Mesh> GetMeshes() {

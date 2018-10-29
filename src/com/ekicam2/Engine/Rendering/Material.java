@@ -1,4 +1,4 @@
-package com.ekicam2;
+package com.ekicam2.Engine.Rendering;
 
 import org.joml.Matrix4f;
 import org.lwjgl.BufferUtils;

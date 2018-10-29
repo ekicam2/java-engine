@@ -1,9 +1,10 @@
-package com.ekicam2;
+package com.ekicam2.Engine.Rendering;
 
+import com.ekicam2.Engine.Transform;
 import org.joml.Matrix4f;
 
 public class Camera {
-    private Transform Transform = new Transform();
+    private com.ekicam2.Engine.Transform Transform = new Transform();
 
     Matrix4f View = new Matrix4f()
             .lookAtLH(0.0f, 0.0f, -150.0f,
