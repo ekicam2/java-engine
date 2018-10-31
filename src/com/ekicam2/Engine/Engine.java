@@ -4,6 +4,7 @@ import com.ekicam2.Engine.Editor.EditorInputHandler;
 import com.ekicam2.Engine.EngineUtils.MeshLoader;
 import com.ekicam2.Engine.Rendering.Camera;
 import com.ekicam2.Engine.Rendering.Renderer;
+import com.ekicam2.Main;
 import org.joml.Vector3f;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.glfw.GLFWVidMode;
@@ -108,16 +109,11 @@ public final class Engine {
         CurrentScene.GetModels().get(0).Transform.SetPosition(new Vector3f(0.0f, -0.0f, 520.0f));
         /* debug playground end */
 
-
         while ( !glfwWindowShouldClose(Widnow) ) {
             UpdateDeltaTime();
             glfwPollEvents();
-            CurrentScene.Update(DeltaTime);
+            CurrentScene.Update(GetDeltaTime());
             MainRenderer.RenderScene(CurrentScene);
-
-            System.out.println("---------------------------");
-            System.out.printf("%.5f \n", GetDeltaTime());
-            System.out.println(DeltaTime);
         }
     }
 
@@ -138,5 +134,6 @@ public final class Engine {
         glfwSetErrorCallback(null).free();
 
         CurrentScene.Free();
+        MainRenderer.Free();
     }
 }

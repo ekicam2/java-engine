@@ -1,4 +1,4 @@
-package com.ekicam2.Engine.Rendering;
+package com.ekicam2.Engine.Rendering.OpenGL;
 
 import org.lwjgl.opengl.GL45;
 
@@ -10,20 +10,6 @@ public class VAO {
 
     private int IndVBO;
     private int IndicesCount = 0;
-
-    public VAO() {
-        Handle = GL45.glGenVertexArrays();
-
-        float vert[] = {
-                -0.5f, -0.5f, 0.0f,
-                0.5f, -0.5f, 0.0f,
-                0.0f, 0.5f, 0.0f
-        };
-        SetVertices(vert);
-
-        int indices[] = { 0, 1, 2};
-        SetIndices(indices);
-    }
 
     public VAO(float Vertices[], int Indices[]) {
         Handle = GL45.glGenVertexArrays();
@@ -38,7 +24,7 @@ public class VAO {
         SetVertices(Vertices);
     }
 
-    public void Delete() {
+    public void Free() {
         GL45.glDeleteBuffers(PosVBO);
         GL45.glDeleteBuffers(IndVBO);
         GL45.glDeleteVertexArrays(Handle);
@@ -48,7 +34,7 @@ public class VAO {
         GL45.glBindVertexArray(Handle);
     }
 
-    public static void Unbind() {
+    public void Unbind() {
         GL45.glBindVertexArray(0);
     }
 

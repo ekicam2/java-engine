@@ -11,17 +11,6 @@ public class Material {
     private int Handle;
     private boolean bIsLinked = false;
 
-    public Material() {
-        Handle = GL45.glCreateProgram();
-
-        AddShader(new Shader(Shader.Type.Fragment));
-        AddShader(new Shader(Shader.Type.Vertex));
-
-        BindAttrib(0, "position");
-
-        Link();
-    }
-
     public Material(Shader VertexShader, Shader FragmentShader) {
         Handle = GL45.glCreateProgram();
         AddShader(VertexShader);
@@ -29,6 +18,9 @@ public class Material {
         Link();
     }
 
+    public void Free() {
+        GL45.glDeleteProgram(Handle);
+    }
 
     public void AddShader(Shader ShaderToAdd) {
         if(!ShaderToAdd.WasCompiled())
@@ -73,6 +65,5 @@ public class Material {
 
     public void Bind() {
         GL45.glUseProgram(Handle);
-
     }
 }

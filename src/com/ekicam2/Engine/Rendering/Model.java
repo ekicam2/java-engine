@@ -61,5 +61,6 @@ public class Model {
     public void Free() {
         aiReleaseImport(Scene);
         Scene = null;
+        Meshes.forEach(mesh -> { mesh.Free(); });
     }
 }

@@ -34,12 +34,12 @@ public class Texture {
         switch (InType){
             case Texture2D:
                 return GL45.GL_TEXTURE_2D;
-                break;
 
             default:
-                throw new ExecutionControl.NotImplementedException("This type (" + InType.toString() + ") of texture is not implemented yet.")
                 break;
         }
+
+        return -1;
     }
 
 

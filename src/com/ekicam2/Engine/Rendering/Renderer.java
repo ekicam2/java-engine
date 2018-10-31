@@ -1,6 +1,8 @@
 package com.ekicam2.Engine.Rendering;
 
 import com.ekicam2.Engine.Engine;
+import com.ekicam2.Engine.EngineUtils.EngineUtils;
+import com.ekicam2.Engine.Rendering.OpenGL.VAO;
 import com.ekicam2.Engine.Scene;
 import org.joml.Matrix4f;
 import org.lwjgl.glfw.GLFW;
@@ -19,22 +21,23 @@ public class Renderer {
 
     public RenderMode Mode = RenderMode.Shaded;
 
-
     private Material newmat = null;
     private Engine Engine = null;
 
     //TODO: create materials manager
     public Renderer(Engine InEngine){
         Engine = InEngine;
-        Shader vsShader = null;
-        Shader fsShader = null;
-        try {
-            vsShader = new Shader(Shader.Type.Fragment, new String(Files.readAllBytes(Paths.get("resources\\Shaders\\SimpleFragment.fs")), StandardCharsets.UTF_8));
-            fsShader = new Shader(Shader.Type.Vertex, new String(Files.readAllBytes(Paths.get("resources\\Shaders\\SimpleVertex.vs")), StandardCharsets.UTF_8));
-        } catch (Exception e) {
-            System.err.println(e.getMessage());
-        }
+
+        Shader vsShader = new Shader(Shader.Type.Fragment, EngineUtils.ReadFromFile("resources\\Shaders\\SimpleFragment.fs"));
+        Shader fsShader = new Shader(Shader.Type.Vertex, EngineUtils.ReadFromFile("resources\\Shaders\\SimpleVertex.vs"));
         newmat = new Material(vsShader, fsShader);
+        newmat.BindAttrib(0, "position");
+        vsShader.Free();
+        fsShader.Free();
+    }
+
+    public void Free() {
+         newmat.Free();
     }
 
     public void RenderScene(Scene SceneToRender) {
@@ -103,6 +106,6 @@ public class Renderer {
             GL45.glDrawArrays(GL45.GL_TRIANGLES, 0, VAOToRender.GetVerticesCount());
         }
 
-        VAO.Unbind();
+        VAOToRender.Unbind();
     }
 }

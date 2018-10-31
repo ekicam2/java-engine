@@ -1,5 +1,6 @@
 package com.ekicam2.Engine.Rendering;
 
+import com.ekicam2.Engine.Rendering.OpenGL.VAO;
 import org.lwjgl.assimp.AIFace;
 import org.lwjgl.assimp.AIMesh;
 import org.lwjgl.assimp.AIVector3D;
@@ -7,7 +8,7 @@ import org.lwjgl.assimp.AIVector3D;
 import java.nio.IntBuffer;
 
 public class Mesh {
-    private VAO VAO;
+    private com.ekicam2.Engine.Rendering.OpenGL.VAO VAO;
     private int MaterialIndex;
 
     public Mesh(AIMesh Mesh) {
@@ -47,5 +48,9 @@ public class Mesh {
     public int GetMaterialIndex()
     {
         return MaterialIndex;
+    }
+
+    public void Free() {
+        VAO.Free();
     }
 }
