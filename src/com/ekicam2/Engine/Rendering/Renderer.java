@@ -1,12 +1,14 @@
 package com.ekicam2.Engine.Rendering;
 
+import com.ekicam2.Engine.Engine;
+import com.ekicam2.Engine.Scene;
 import org.joml.Matrix4f;
+import org.lwjgl.glfw.GLFW;
 import org.lwjgl.opengl.GL45;
 
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.List;
 
 public class Renderer {
     public enum RenderMode {
@@ -18,11 +20,12 @@ public class Renderer {
     public RenderMode Mode = RenderMode.Shaded;
 
 
-    Material newmat = null;
+    private Material newmat = null;
+    private Engine Engine = null;
 
     //TODO: create materials manager
-    public Renderer(){
-
+    public Renderer(Engine InEngine){
+        Engine = InEngine;
         Shader vsShader = null;
         Shader fsShader = null;
         try {
@@ -33,13 +36,14 @@ public class Renderer {
         }
         newmat = new Material(vsShader, fsShader);
     }
-    public void DrawModels(Camera CurrentCamera, List<Model> Models) {
+
+    public void RenderScene(Scene SceneToRender) {
+        PrepareFrame();
         SetupRendererDependingOnMode();
 
-        for(Model ModelEntity: Models) {
+        for(Model ModelEntity: SceneToRender.GetModels()) {
             Matrix4f MVP = new Matrix4f();
-            CurrentCamera.GetViewProjection().mul(ModelEntity.Transform.GetModel(), MVP);
-
+            SceneToRender.GetCurrentCamera().GetViewProjection().mul(ModelEntity.Transform.GetModel(), MVP);
 
             for(var Mesh : ModelEntity.GetMeshes())
             {
@@ -55,6 +59,19 @@ public class Renderer {
                 RenderVAO(Mesh.GetVAO());
             }
         }
+
+        Present();
+    }
+
+    private void PrepareFrame() {
+        GL45.glClearColor(0.60f, 0.20f, 0.70f, 0.0f);
+        GL45.glEnable(GL45.GL_DEPTH_TEST);
+
+        GL45.glClear(GL45.GL_COLOR_BUFFER_BIT | GL45.GL_DEPTH_BUFFER_BIT);
+    }
+
+    private void Present() {
+        GLFW.glfwSwapBuffers(Engine.GetWindow());
     }
 
     private void SetupRendererDependingOnMode() {

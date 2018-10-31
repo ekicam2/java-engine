@@ -3,31 +3,40 @@ package com.ekicam2.Engine;
 import com.ekicam2.Engine.Editor.EditorInputHandler;
 import com.ekicam2.Engine.EngineUtils.MeshLoader;
 import com.ekicam2.Engine.Rendering.Camera;
-import com.ekicam2.Engine.Rendering.Material;
-import com.ekicam2.Engine.Rendering.Model;
 import com.ekicam2.Engine.Rendering.Renderer;
+import org.joml.Vector3f;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.system.MemoryStack;
 
 import java.nio.IntBuffer;
-import java.util.ArrayList;
-import java.util.List;
 
 import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.glfw.GLFW.glfwShowWindow;
 import static org.lwjgl.glfw.GLFW.glfwSwapInterval;
-import static org.lwjgl.opengl.GL45.*;
 import static org.lwjgl.system.MemoryStack.stackPush;
 import static org.lwjgl.system.MemoryUtil.NULL;
 
 public final class Engine {
-    // The window handle
-    private long window;
+    // The Widnow handle
+    private long Widnow;
     private InputHandler InputHandler = new EditorInputHandler(this);
     private Renderer MainRenderer;
+    //TODO: Scenes manager
+    private Scene CurrentScene = new Scene();
+
+    private long LastUpdateTimestamp;
+    private float DeltaTime;
+
+    public long GetWindow() {
+        return Widnow;
+    }
+
+    public float GetDeltaTime() {
+        return DeltaTime;
+    }
 
     public boolean Init() {
         // Setup an error callback. The default implementation
@@ -39,17 +48,17 @@ public final class Engine {
             throw new IllegalStateException("Unable to initialize GLFW");
 
         // Configure GLFW
-        glfwDefaultWindowHints(); // optional, the current window hints are already the default
-        glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE); // the window will stay hidden after creation
-        glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE); // the window will be resizable
+        glfwDefaultWindowHints(); // optional, the current Widnow hints are already the default
+        glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE); // the Widnow will stay hidden after creation
+        glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE); // the Widnow will be resizable
 
-        // Create the window
-        window = glfwCreateWindow(1080, 1080, "Hello World!", NULL, NULL);
-        if ( window == NULL )
-            throw new RuntimeException("Failed to create the GLFW window");
+        // Create the Widnow
+        Widnow = glfwCreateWindow(1080, 1080, "Hello World!", NULL, NULL);
+        if ( Widnow == NULL )
+            throw new RuntimeException("Failed to create the GLFW Widnow");
 
         // Setup a key callback. It will be called every time a key is pressed, repeated or released.
-        glfwSetKeyCallback(window, (window, key, scancode, action, mods) -> {
+        glfwSetKeyCallback(Widnow, (window, key, scancode, action, mods) -> {
             InputHandler.HandleGLFWInputs(window, key, scancode, action, mods);
         });
 
@@ -58,27 +67,27 @@ public final class Engine {
             IntBuffer pWidth = stack.mallocInt(1); // int*
             IntBuffer pHeight = stack.mallocInt(1); // int*
 
-            // Get the window size passed to glfwCreateWindow
-            glfwGetWindowSize(window, pWidth, pHeight);
+            // Get the Widnow size passed to glfwCreateWindow
+            glfwGetWindowSize(Widnow, pWidth, pHeight);
 
             // Get the resolution of the primary monitor
             GLFWVidMode vidmode = glfwGetVideoMode(glfwGetPrimaryMonitor());
 
-            // Center the window
+            // Center the Widnow
             glfwSetWindowPos(
-                    window,
+                    Widnow,
                     (vidmode.width() - pWidth.get(0)) / 2,
                     (vidmode.height() - pHeight.get(0)) / 2
             );
         } // the stack frame is popped automatically
 
         // Make the OpenGL context current
-        glfwMakeContextCurrent(window);
+        glfwMakeContextCurrent(Widnow);
         // Enable v-sync
         glfwSwapInterval(1);
 
-        // Make the window visible
-        glfwShowWindow(window);
+        // Make the Widnow visible
+        glfwShowWindow(Widnow);
 
         // This line is critical for LWJGL's interoperation with GLFW's
         // OpenGL context, or any context that is managed externally.
@@ -87,57 +96,47 @@ public final class Engine {
         // bindings available for use.
         GL.createCapabilities();
 
-        MainRenderer = new Renderer();
+        MainRenderer = new Renderer(this);
+        CurrentScene.SetActiveCamera(CurrentScene.AddCamera(new Camera()));
 
         return true;
     }
 
     public void Run() {
-        // Set the clear color
-        glClearColor(0.60f, 0.20f, 0.70f, 0.0f);
-        glEnable(GL_DEPTH_TEST);
-
         /* debug playground */
-        Material mat = new Material();
-
-        List<Model> ModelsToRender = new ArrayList<>();
-
-        ModelsToRender.add(MeshLoader.LoadFBX("resources\\Models\\FBX format\\bottle.fbx"));
-        ModelsToRender.add(MeshLoader.LoadFBX("resources\\Models\\FBX format\\cannonBall.fbx"));
-        //ModelsToRender.get(1).Transform.SetRotation(new Vector3f(180.0f, -45.0f, 0.0f));
-        //ModelsToRender.get(1).Transform.SetPosition(new Vector3f(0.0f, 0.0f, 100.0f));
-        ModelsToRender.get(0).SetMaterial(0, mat);
-
-        Camera CurrCamera = new Camera();
-        // MainRenderer.Mode = Renderer.RenderMode.Wireframe;
+        CurrentScene.AddModel(MeshLoader.LoadOBJ("resources\\Models\\OBJ format\\chest.obj"));
+        CurrentScene.GetModels().get(0).Transform.SetPosition(new Vector3f(0.0f, -0.0f, 520.0f));
         /* debug playground end */
 
-        // Run the rendering loop until the user has attempted to close
-        // the window or has pressed the ESCAPE key.
-        while ( !glfwWindowShouldClose(window) ) {
-            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // clear the framebuffer
 
-            /* debug playground */
-            MainRenderer.DrawModels(CurrCamera, ModelsToRender);
-            /* debug playground end */
-
-            glfwSwapBuffers(window); // swap the color buffers
-
-            // Poll for window events. The key callback above will only be
-            // invoked during this call.
+        while ( !glfwWindowShouldClose(Widnow) ) {
+            UpdateDeltaTime();
             glfwPollEvents();
-        }
+            CurrentScene.Update(DeltaTime);
+            MainRenderer.RenderScene(CurrentScene);
 
-        ModelsToRender.forEach((model -> model.Free()));
+            System.out.println("---------------------------");
+            System.out.printf("%.5f \n", GetDeltaTime());
+            System.out.println(DeltaTime);
+        }
+    }
+
+    private void UpdateDeltaTime() {
+        long CurrentTimestamp = System.nanoTime();
+        final int NanoToMili = 1000000;
+        DeltaTime = (float) (CurrentTimestamp - LastUpdateTimestamp) * NanoToMili;
+        LastUpdateTimestamp = CurrentTimestamp;
     }
 
     public void Terminate() {
-        // Free the window callbacks and destroy the window
-        glfwFreeCallbacks(window);
-        glfwDestroyWindow(window);
+        // Free the Widnow callbacks and destroy the Widnow
+        glfwFreeCallbacks(Widnow);
+        glfwDestroyWindow(Widnow);
 
         // Terminate GLFW and free the error callback
         glfwTerminate();
         glfwSetErrorCallback(null).free();
+
+        CurrentScene.Free();
     }
 }
