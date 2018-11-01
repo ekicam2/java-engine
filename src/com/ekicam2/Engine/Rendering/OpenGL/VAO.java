@@ -2,7 +2,7 @@ package com.ekicam2.Engine.Rendering.OpenGL;
 
 import org.lwjgl.opengl.GL45;
 
-public class VAO {
+public class VAO implements OGLWrapper {
     private int Handle;
 
     private int PosVBO;
@@ -37,6 +37,8 @@ public class VAO {
     public void Unbind() {
         GL45.glBindVertexArray(0);
     }
+
+    public int GetHandle() { return Handle; }
 
     public int GetIndicesCount() {
         return IndicesCount;

@@ -8,10 +8,6 @@ import org.joml.Matrix4f;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.opengl.GL45;
 
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-
 public class Renderer {
     public enum RenderMode {
         Wireframe,
@@ -22,28 +18,36 @@ public class Renderer {
     public RenderMode Mode = RenderMode.Shaded;
 
     private Material newmat = null;
+    private Material objid  = null;
     private Engine Engine = null;
 
     //TODO: create materials manager
     public Renderer(Engine InEngine){
         Engine = InEngine;
 
-        Shader vsShader = new Shader(Shader.Type.Fragment, EngineUtils.ReadFromFile("resources\\Shaders\\SimpleFragment.fs"));
-        Shader fsShader = new Shader(Shader.Type.Vertex, EngineUtils.ReadFromFile("resources\\Shaders\\SimpleVertex.vs"));
+        Shader vsShader = new Shader(Shader.Type.Vertex, EngineUtils.ReadFromFile("resources\\Shaders\\SimpleVertex.vs"));
+        Shader fsShader = new Shader(Shader.Type.Fragment, EngineUtils.ReadFromFile("resources\\Shaders\\SimpleFragment.fs"));
         newmat = new Material(vsShader, fsShader);
         newmat.BindAttrib(0, "position");
-        vsShader.Free();
         fsShader.Free();
+
+        Shader fsIdShader = new Shader(Shader.Type.Fragment, EngineUtils.ReadFromFile("resources\\Shaders\\ObjID.fs"));
+        objid = new Material(vsShader, fsIdShader);
+        objid.BindAttrib(0, "position");
+        vsShader.Free();
+        fsIdShader.Free();
     }
 
     public void Free() {
          newmat.Free();
+         objid.Free();
     }
 
     public void RenderScene(Scene SceneToRender) {
         PrepareFrame();
         SetupRendererDependingOnMode();
 
+        // fist phase render to the default Framebuffer
         for(Model ModelEntity: SceneToRender.GetModels()) {
             Matrix4f MVP = new Matrix4f();
             SceneToRender.GetCurrentCamera().GetViewProjection().mul(ModelEntity.Transform.GetModel(), MVP);
@@ -51,23 +55,40 @@ public class Renderer {
             for(var Mesh : ModelEntity.GetMeshes())
             {
                 Material MaterialToUse = ModelEntity.GetMaterial(Mesh.GetMaterialIndex());
-                if(MaterialToUse != null) {
-                    MaterialToUse.Bind();
-                } else {
+                if(MaterialToUse == null) {
                     MaterialToUse = newmat;
-                    MaterialToUse.Bind();
                 }
+                MaterialToUse.Bind();
 
                 MaterialToUse.BindUniform("mvp", MVP);
+                MaterialToUse.BindUniform("in_color", 0.85f,0.30f, 255.0f);
                 RenderVAO(Mesh.GetVAO());
             }
         }
 
+        // second render to the obj id
+        {
+            Engine.GetEditorInstance().GetScenePicker().PrepareForRender();
+            objid.Bind();
+            for(Model ModelEntity: SceneToRender.GetModels()) {
+                Matrix4f MVP = new Matrix4f();
+                SceneToRender.GetCurrentCamera().GetViewProjection().mul(ModelEntity.Transform.GetModel(), MVP);
+
+                objid.BindUniform("mvp", MVP);
+                objid.BindUniform("object_id", 1.0f,1.0f, .450f);
+
+                for(var Mesh : ModelEntity.GetMeshes())
+                {
+                    RenderVAO(Mesh.GetVAO());
+                }
+            }
+            Engine.GetEditorInstance().GetScenePicker().CleanupAfterRender();
+        }
         Present();
     }
 
     private void PrepareFrame() {
-        GL45.glClearColor(0.60f, 0.20f, 0.70f, 0.0f);
+        GL45.glClearColor(0.0f, 0.0f, 0.00f, 0.0f);
         GL45.glEnable(GL45.GL_DEPTH_TEST);
 
         GL45.glClear(GL45.GL_COLOR_BUFFER_BIT | GL45.GL_DEPTH_BUFFER_BIT);
@@ -84,10 +105,6 @@ public class Renderer {
                 break;
             case WireframeWithVertices:
                 //TODO double pass
-                //
-                //
-                //
-                //
                 //
                 //
                 break;
@@ -109,3 +126,4 @@ public class Renderer {
         VAOToRender.Unbind();
     }
 }
+

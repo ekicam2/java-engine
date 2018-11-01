@@ -1,8 +1,9 @@
 package com.ekicam2.Engine.Rendering;
 
+import com.ekicam2.Engine.Rendering.OpenGL.OGLWrapper;
 import org.lwjgl.opengl.GL45;
 
-public class Shader {
+public class Shader implements OGLWrapper {
     enum Type {
         Vertex,
         Fragment
@@ -52,7 +53,22 @@ public class Shader {
         return Handle;
     }
 
+    @Override
+    public void Bind() {
+
+    }
+
+    @Override
+    public void Unbind() {
+
+    }
+
     public void Free() {
         GL45.glDeleteShader(Handle);
+    }
+
+    @Override
+    public int GetHandle() {
+        return Handle;
     }
 }

@@ -1,9 +1,10 @@
 package com.ekicam2.Engine.Rendering;
 
+import com.ekicam2.Engine.Rendering.OpenGL.OGLWrapper;
 import jdk.jshell.spi.ExecutionControl;
 import org.lwjgl.opengl.GL45;
 
-public class Texture {
+public class Texture implements OGLWrapper {
     public enum TextureType {
         Texture1D,
         Texture2D,
@@ -18,16 +19,24 @@ public class Texture {
         Handle = GL45.glGenTextures();
     }
 
+    @Override
     public void Bind() {
         GL45.glBindTexture(Texture.GetOGLTextureType(Type), Handle);
     }
 
-    public static void Unbind() {
-        GL45.glBindTexture(GL45.GL_TEXTURE_2D, 0);
+    @Override
+    public void Unbind() {
+        GL45.glBindTexture(Texture.GetOGLTextureType(Type), 0);
     }
 
+    @Override
     public void Free() {
         GL45.glDeleteTextures(Handle);
+    }
+
+    @Override
+    public int GetHandle() {
+        return Handle;
     }
 
     private static int GetOGLTextureType(TextureType InType) {
@@ -36,6 +45,7 @@ public class Texture {
                 return GL45.GL_TEXTURE_2D;
 
             default:
+                System.err.println(InType.toString() + " not implemented yet");
                 break;
         }
 

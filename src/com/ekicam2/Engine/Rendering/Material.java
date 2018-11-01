@@ -1,5 +1,6 @@
 package com.ekicam2.Engine.Rendering;
 
+import com.ekicam2.Engine.Rendering.OpenGL.OGLWrapper;
 import org.joml.Matrix4f;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL45;
@@ -7,7 +8,7 @@ import org.lwjgl.opengl.GL45;
 import java.nio.FloatBuffer;
 
 
-public class Material {
+public class Material implements OGLWrapper {
     private int Handle;
     private boolean bIsLinked = false;
 
@@ -16,6 +17,7 @@ public class Material {
         AddShader(VertexShader);
         AddShader(FragmentShader);
         Link();
+        Unbind();
     }
 
     public void Free() {
@@ -30,7 +32,9 @@ public class Material {
     }
 
     public void BindAttrib(int Index, String AttribName) {
+        Bind();
         GL45.glBindAttribLocation(Handle, Index, AttribName);
+        Unbind();
     }
 
     public void BindUniform(String Name, Matrix4f InMatrix) {
@@ -41,6 +45,15 @@ public class Material {
             FloatBuffer Buffer = BufferUtils.createFloatBuffer(16);;
             InMatrix.get(Buffer);
             GL45.glUniformMatrix4fv(Location, false, Buffer);
+        }
+    }
+
+    public void BindUniform(String Name, float x, float y, float z) {
+        Bind();
+        int Location = GL45.glGetUniformLocation(Handle, Name);
+        if(Location != -1)
+        {
+            GL45.glUniform3f(Location, x, y, z);
         }
     }
 
@@ -66,4 +79,11 @@ public class Material {
     public void Bind() {
         GL45.glUseProgram(Handle);
     }
+
+    @Override
+    public void Unbind() {
+        GL45.glUseProgram(0);
+    }
+
+    public int GetHandle() { return Handle; }
 }

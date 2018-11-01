@@ -1,10 +1,10 @@
 #version 330 core
 
-uniform vec3 in_color;
+uniform vec3 object_id;
 
 out vec3 color;
 
 void main()
 {
-    color = in_color;
+    color = object_id;
 }

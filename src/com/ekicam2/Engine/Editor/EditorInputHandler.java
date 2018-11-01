@@ -12,8 +12,26 @@ public class EditorInputHandler extends InputHandler {
     }
 
     @Override
-    public void HandleGLFWInputs(long Window, int Key, int Scancode, int Action, int Mods) {
-        if ( Key == GLFW_KEY_ESCAPE && Action == GLFW_RELEASE )
+    public boolean HandleGLFKeyboardWInputs(long Window, int Key, int Scancode, int Action, int Mods) {
+        if ( Key == GLFW_KEY_ESCAPE && Action == GLFW_RELEASE ) {
             glfwSetWindowShouldClose(Window, true);
+            return true;
+        }
+
+        return false;
+    }
+
+    @Override
+    public boolean HandleGLFMouseWInputs(long Window, int Button, int Action, int Mods) {
+        if(Button == GLFW_MOUSE_BUTTON_LEFT && Action == GLFW_PRESS) {
+            double[] X = {0};
+            double[] Y = {0};
+
+            glfwGetCursorPos(Window, X, Y);
+            Engine.GetEditorInstance().GetScenePicker().GetObjectID((int)X[0], (int)Y[0]);
+            return true;
+        }
+
+        return false;
     }
 }

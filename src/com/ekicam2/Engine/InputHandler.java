@@ -2,10 +2,11 @@ package com.ekicam2.Engine;
 
 public abstract class  InputHandler {
 
-    private Engine Engine = null;
+    protected Engine Engine = null;
     public InputHandler(Engine InEngine) {
         Engine = InEngine;
     }
 
-    public abstract void HandleGLFWInputs(long Window, int Key, int Scancode, int Action, int Mods);
+    public abstract boolean HandleGLFKeyboardWInputs(long Window, int Key, int Scancode, int Action, int Mods);
+    public abstract boolean HandleGLFMouseWInputs(long Window, int Button, int Action, int Mods);
 }
