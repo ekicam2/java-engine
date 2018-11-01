@@ -56,12 +56,12 @@ public class Renderer {
             {
                 Material MaterialToUse = ModelEntity.GetMaterial(Mesh.GetMaterialIndex());
                 if(MaterialToUse == null) {
-                    MaterialToUse = newmat;
+                    MaterialToUse = objid;
                 }
                 MaterialToUse.Bind();
 
                 MaterialToUse.BindUniform("mvp", MVP);
-                MaterialToUse.BindUniform("in_color", 0.85f,0.30f, 255.0f);
+                MaterialToUse.BindUniform("object_id", 0.85f,0.30f, 255.0f);
                 RenderVAO(Mesh.GetVAO());
             }
         }
@@ -69,13 +69,16 @@ public class Renderer {
         // second render to the obj id
         {
             Engine.GetEditorInstance().GetScenePicker().PrepareForRender();
-            objid.Bind();
+            PrepareFrame();
+            Material MaterialToUse = objid;
+            MaterialToUse.Bind();
+
             for(Model ModelEntity: SceneToRender.GetModels()) {
                 Matrix4f MVP = new Matrix4f();
                 SceneToRender.GetCurrentCamera().GetViewProjection().mul(ModelEntity.Transform.GetModel(), MVP);
 
-                objid.BindUniform("mvp", MVP);
-                objid.BindUniform("object_id", 1.0f,1.0f, .450f);
+                MaterialToUse.BindUniform("mvp", MVP);
+                MaterialToUse.BindUniform("object_id", 1.0f,1.0f, .450f);
 
                 for(var Mesh : ModelEntity.GetMeshes())
                 {

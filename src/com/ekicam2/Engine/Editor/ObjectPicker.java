@@ -18,7 +18,6 @@ public class ObjectPicker {
         Engine = InEngine;
         Renderbuff.Allocate(Engine.GetWindowWidth(), Engine.GetWindowHeight(), PixelFormat.RGB_32);
         Renderbuff.BindToFrameBuffer(Framebuff, BindingPolicy.Write);
-        System.out.println(Framebuff.CheckForCompleteness());
     }
 
     public void PrepareForRender() {
@@ -36,11 +35,11 @@ public class ObjectPicker {
         GL45.glReadBuffer(Renderbuff.GetOGLAttachmentType());
 
         float Pixel[] = new float [3];
-        GL45.glReadPixels(X,  -Y, 1, 1, GL45.GL_RGB, GL45.GL_FLOAT, Pixel);
+        GL45.glReadPixels(X,  Y, 1, 1, GL45.GL_RGB, GL45.GL_FLOAT, Pixel);
 
 
-        GL45.glReadBuffer(GL45.GL_NONE);
         Framebuff.Unbind();
+        //GL45.glReadBuffer(GL45.GL_NONE);
 
         System.err.println(X + " " + Y);
         System.out.println(Pixel[0] + ", " + Pixel[1] + ", " + Pixel[2]);

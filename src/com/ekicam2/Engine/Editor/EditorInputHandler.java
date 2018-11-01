@@ -28,7 +28,7 @@ public class EditorInputHandler extends InputHandler {
             double[] Y = {0};
 
             glfwGetCursorPos(Window, X, Y);
-            Engine.GetEditorInstance().GetScenePicker().GetObjectID((int)X[0], (int)Y[0]);
+            Engine.GetEditorInstance().GetScenePicker().GetObjectID((int)X[0], Engine.GetWindowHeight() - (int)Y[0]);
             return true;
         }
 
