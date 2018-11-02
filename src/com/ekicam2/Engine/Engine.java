@@ -1,6 +1,5 @@
 package com.ekicam2.Engine;
 
-import com.ekicam2.Engine.Editor.EditorInputHandler;
 import com.ekicam2.Engine.EngineUtils.MeshLoader;
 import com.ekicam2.Engine.Rendering.Camera;
 import com.ekicam2.Engine.Editor.Editor;
@@ -9,7 +8,6 @@ import org.joml.Vector3f;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.opengl.GL;
-import org.lwjgl.opengl.GL45;
 import org.lwjgl.system.MemoryStack;
 
 import java.nio.IntBuffer;
@@ -26,6 +24,8 @@ public final class Engine {
     private int WindowWidth = 1080;
     private int WindowHeight = 1080;
 
+    private boolean bIsFullscreen = false;
+
     private Renderer MainRenderer = null;
     private Editor EditorInstance = null;
     //TODO: Scenes manager
@@ -37,54 +37,100 @@ public final class Engine {
     public long GetWindow() {
         return Window;
     }
-
     public float GetDeltaTime() {
         return DeltaTime;
     }
-
+    public int GetWindowWidth() { return WindowWidth; }
+    public int GetWindowHeight() {return WindowHeight;}
+    public boolean WithEditor() { return EditorInstance != null; }
     public Editor GetEditorInstance() {
         return EditorInstance;
     }
 
-    public int GetWindowWidth() { return WindowWidth; }
-    public int GetWindowHeight() {return WindowHeight;}
-
     public boolean Init() {
+        if (!InitGLFW()) {
+            return false;
+        }
+
+        MainRenderer = new Renderer(this);
+        EditorInstance = new Editor(this);
+        CurrentScene.SetActiveCamera(CurrentScene.AddCamera(new Camera()));
+
+        return true;
+    }
+    public void Run() {
+        /* debug playground */
+        CurrentScene.AddModel(MeshLoader.LoadOBJ("resources\\Models\\OBJ format\\chest.obj"));
+        CurrentScene.GetModels().get(0).Transform.SetPosition(new Vector3f(0.0f, -0.0f, 520.0f));
+        /* debug playground end */
+
+        while ( !glfwWindowShouldClose(Window) ) {
+            UpdateDeltaTime();
+            glfwPollEvents();
+            CurrentScene.Update(GetDeltaTime());
+            MainRenderer.RenderScene(CurrentScene);
+        }
+    }
+    public void Terminate() {
+        // Free the Window callbacks and destroy the Window
+        glfwFreeCallbacks(Window);
+        glfwDestroyWindow(Window);
+
+        // Terminate GLFW and free the error callback
+        glfwTerminate();
+        glfwSetErrorCallback(null).free();
+
+        CurrentScene.Free();
+        MainRenderer.Free();
+    }
+
+    private void UpdateDeltaTime() {
+        long CurrentTimestamp = System.nanoTime();
+        final int NanoToMili = 1000000;
+        DeltaTime = (float) (CurrentTimestamp - LastUpdateTimestamp) * NanoToMili;
+        LastUpdateTimestamp = CurrentTimestamp;
+    }
+
+    private boolean InitGLFW() {
         // Setup an error callback. The default implementation
         // will print the error message in System.err.
         GLFWErrorCallback.createPrint(System.err).set();
 
         // Initialize GLFW. Most GLFW functions will not work before doing this.
-        if ( !glfwInit() )
-            throw new IllegalStateException("Unable to initialize GLFW");
+        if ( !glfwInit() ) {
+            System.err.println("Unable to initialize GLFW");
+            return true;
+        }
 
         // Configure GLFW
         GLFWVidMode vidmode = glfwGetVideoMode(glfwGetPrimaryMonitor());
-        //glfwDefaultWindowHints(); // optional, the current Window hints are already the default
-        //glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE); // the Window will stay hidden after creation
-        //glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE); // the Window will be resizable
+        if(!bIsFullscreen) {
+            glfwDefaultWindowHints(); // optional, the current Window hints are already the default
+            glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE); // the Window will stay hidden after creation
+            glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE); // the Window will be resizable
+        }
         glfwWindowHint(GLFW_RED_BITS, vidmode.redBits());
         glfwWindowHint(GLFW_GREEN_BITS, vidmode.greenBits());
         glfwWindowHint(GLFW_BLUE_BITS, vidmode.blueBits());
         glfwWindowHint(GLFW_REFRESH_RATE, vidmode.refreshRate());
 
-        WindowWidth = vidmode.width();
-        WindowHeight = vidmode.height();
+        WindowWidth = bIsFullscreen ? vidmode.width() : WindowWidth;
+        WindowHeight = bIsFullscreen ? vidmode.height() : WindowHeight;
+        long MonitorID = bIsFullscreen ? glfwGetPrimaryMonitor() : NULL;
 
         // Create the Window
-        Window = glfwCreateWindow(WindowWidth, WindowHeight, "Hello World!", glfwGetPrimaryMonitor(), NULL);
-        if ( Window == NULL )
-            throw new RuntimeException("Failed to create the GLFW Window");
+        Window = glfwCreateWindow(WindowWidth, WindowHeight, "Hello World!", MonitorID, NULL);
+        if ( Window == NULL ) {
+            System.err.println("Failed to create the GLFW Window");
+            return true;
+        }
 
-        // Setup a key callback. It will be called every time a key is pressed, repeated or released.
         glfwSetKeyCallback(Window, (window, key, scancode, action, mods) -> {
-            boolean bWasHandled = EditorInstance.GetInputHandler().HandleGLFKeyboardWInputs(window, key, scancode, action, mods);
-            //TODO: move to an engine method
+            HandleKeyboardInputs(window, key, scancode, action, mods);
         });
 
         glfwSetMouseButtonCallback(Window, (Window, Button, Action, Mods) -> {
-            boolean bWasHandled = EditorInstance.GetInputHandler().HandleGLFMouseWInputs(Window, Button, Action, Mods);
-            //TODO: move to an engine method
+            HandleMouseInputs(Window, Button, Action, Mods);
         });
 
         // Get the thread stack and push a new frame
@@ -113,54 +159,30 @@ public final class Engine {
 
         // Make the Window visible
         glfwShowWindow(Window);
-
-        // This line is critical for LWJGL's interoperation with GLFW's
-        // OpenGL context, or any context that is managed externally.
-        // LWJGL detects the context that is current in the current thread,
-        // creates the GLCapabilities instance and makes the OpenGL
-        // bindings available for use.
-        GL.createCapabilities();
-
-        GL45.glViewport(0, 0, 1080, 1080);
-
-        MainRenderer = new Renderer(this);
-        EditorInstance = new Editor(this);
-        CurrentScene.SetActiveCamera(CurrentScene.AddCamera(new Camera()));
-
         return true;
     }
+    private void HandleKeyboardInputs(long Window, int Key, int Scancode, int Action, int Mods) {
+        boolean bWasHandled = false;
+        if(WithEditor())
+        {
+            bWasHandled = EditorInstance.GetInputHandler().HandleGLFKeyboardWInputs(Window, Key, Scancode, Action, Mods);
+        }
 
-    public void Run() {
-        /* debug playground */
-        CurrentScene.AddModel(MeshLoader.LoadOBJ("resources\\Models\\OBJ format\\chest.obj"));
-        CurrentScene.GetModels().get(0).Transform.SetPosition(new Vector3f(0.0f, -0.0f, 520.0f));
-        /* debug playground end */
-
-        while ( !glfwWindowShouldClose(Window) ) {
-            UpdateDeltaTime();
-            glfwPollEvents();
-            CurrentScene.Update(GetDeltaTime());
-            MainRenderer.RenderScene(CurrentScene);
+        if(!bWasHandled)
+        {
+            //GetInputHandler().HandleGLFKeyboardWInputs(Window, Key, Scancode, Action, Mods);
         }
     }
+    private void HandleMouseInputs(long Window, int Button, int Action, int Mods) {
+        boolean bWasHandled = false;
+        if(WithEditor())
+        {
+            bWasHandled = EditorInstance.GetInputHandler().HandleGLFMouseWInputs(Window, Button, Action, Mods);
+        }
 
-    private void UpdateDeltaTime() {
-        long CurrentTimestamp = System.nanoTime();
-        final int NanoToMili = 1000000;
-        DeltaTime = (float) (CurrentTimestamp - LastUpdateTimestamp) * NanoToMili;
-        LastUpdateTimestamp = CurrentTimestamp;
-    }
-
-    public void Terminate() {
-        // Free the Window callbacks and destroy the Window
-        glfwFreeCallbacks(Window);
-        glfwDestroyWindow(Window);
-
-        // Terminate GLFW and free the error callback
-        glfwTerminate();
-        glfwSetErrorCallback(null).free();
-
-        CurrentScene.Free();
-        MainRenderer.Free();
+        if(!bWasHandled)
+        {
+            //GetInputHandler().HandleGLFMouseWInputs(Window, Key, Scancode, Action, Mods);
+        }
     }
 }

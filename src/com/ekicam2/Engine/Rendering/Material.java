@@ -20,6 +20,7 @@ public class Material implements OGLWrapper {
         Unbind();
     }
 
+    @Override
     public void Free() {
         GL45.glDeleteProgram(Handle);
     }

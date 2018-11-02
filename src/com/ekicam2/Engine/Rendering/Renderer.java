@@ -6,6 +6,7 @@ import com.ekicam2.Engine.Rendering.OpenGL.VAO;
 import com.ekicam2.Engine.Scene;
 import org.joml.Matrix4f;
 import org.lwjgl.glfw.GLFW;
+import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GL45;
 
 public class Renderer {
@@ -24,6 +25,15 @@ public class Renderer {
     //TODO: create materials manager
     public Renderer(Engine InEngine){
         Engine = InEngine;
+
+        // This line is critical for LWJGL's interoperation with GLFW's
+        // OpenGL context, or any context that is managed externally.
+        // LWJGL detects the context that is current in the current thread,
+        // creates the GLCapabilities instance and makes the OpenGL
+        // bindings available for use.
+        GL.createCapabilities();
+
+        GL45.glViewport(0, 0, Engine.GetWindowWidth(), Engine.GetWindowHeight());
 
         Shader vsShader = new Shader(Shader.Type.Vertex, EngineUtils.ReadFromFile("resources\\Shaders\\SimpleVertex.vs"));
         Shader fsShader = new Shader(Shader.Type.Fragment, EngineUtils.ReadFromFile("resources\\Shaders\\SimpleFragment.fs"));
