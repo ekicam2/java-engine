@@ -2,6 +2,8 @@ package com.ekicam2.Engine.Rendering;
 
 import com.ekicam2.Engine.Engine;
 import com.ekicam2.Engine.EngineUtils.EngineUtils;
+import com.ekicam2.Engine.Rendering.OpenGL.Material;
+import com.ekicam2.Engine.Rendering.OpenGL.Shader;
 import com.ekicam2.Engine.Rendering.OpenGL.VAO;
 import com.ekicam2.Engine.Scene;
 import org.joml.Matrix4f;
@@ -33,7 +35,7 @@ public class Renderer {
         // bindings available for use.
         GL.createCapabilities();
 
-        GL45.glViewport(0, 0, Engine.GetWindowWidth(), Engine.GetWindowHeight());
+        GL45.glViewport(0, 0, Engine.GetWindow().GetWindowWidth(), Engine.GetWindow().GetWindowHeight());
 
         Shader vsShader = new Shader(Shader.Type.Vertex, EngineUtils.ReadFromFile("resources\\Shaders\\SimpleVertex.vs"));
         Shader fsShader = new Shader(Shader.Type.Fragment, EngineUtils.ReadFromFile("resources\\Shaders\\SimpleFragment.fs"));
@@ -76,7 +78,7 @@ public class Renderer {
             }
         }
 
-        // second render to the obj id
+        if(Engine.WithEditor())
         {
             Engine.GetEditorInstance().GetScenePicker().PrepareForRender();
             PrepareFrame();
@@ -88,7 +90,7 @@ public class Renderer {
                 SceneToRender.GetCurrentCamera().GetViewProjection().mul(ModelEntity.Transform.GetModel(), MVP);
 
                 MaterialToUse.BindUniform("mvp", MVP);
-                MaterialToUse.BindUniform("object_id", 1.0f,1.0f, .450f);
+                MaterialToUse.BindUniform("object_id", 1.0f,1.0f, 45.0f);
 
                 for(var Mesh : ModelEntity.GetMeshes())
                 {
@@ -108,7 +110,7 @@ public class Renderer {
     }
 
     private void Present() {
-        GLFW.glfwSwapBuffers(Engine.GetWindow());
+        GLFW.glfwSwapBuffers(Engine.GetWindow().GetHandle());
     }
 
     private void SetupRendererDependingOnMode() {

@@ -1,6 +1,5 @@
-package com.ekicam2.Engine.Rendering;
+package com.ekicam2.Engine.Rendering.OpenGL;
 
-import com.ekicam2.Engine.Rendering.OpenGL.OGLWrapper;
 import org.joml.Matrix4f;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL45;

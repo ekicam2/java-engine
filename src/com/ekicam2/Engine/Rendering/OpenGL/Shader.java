@@ -1,10 +1,9 @@
-package com.ekicam2.Engine.Rendering;
+package com.ekicam2.Engine.Rendering.OpenGL;
 
-import com.ekicam2.Engine.Rendering.OpenGL.OGLWrapper;
 import org.lwjgl.opengl.GL45;
 
 public class Shader implements OGLWrapper {
-    enum Type {
+    public enum Type {
         Vertex,
         Fragment
     }

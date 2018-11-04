@@ -2,12 +2,13 @@ package com.ekicam2.Engine.Editor;
 
 import com.ekicam2.Engine.Engine;
 import com.ekicam2.Engine.InputHandler;
+import org.joml.Vector3f;
 
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.glfw.GLFW.glfwSetWindowShouldClose;
 
-public class EditorInputHandler extends InputHandler {
-    public EditorInputHandler(Engine InEngine) {
+public class EditorIInputHandler extends InputHandler {
+    public EditorIInputHandler(Engine InEngine) {
         super(InEngine);
     }
 
@@ -18,7 +19,18 @@ public class EditorInputHandler extends InputHandler {
             return true;
         }
 
-        return false;
+        if(Key == GLFW_KEY_RIGHT) {
+            if(Action == GLFW_PRESS) {
+                Engine.test = true;
+            } else if(Action == GLFW_RELEASE)
+            {
+                Engine.test = false;
+            }
+
+            return true;
+        }
+
+        return super.HandleGLFKeyboardWInputs(Window, Key, Scancode, Action, Mods);
     }
 
     @Override
@@ -28,10 +40,13 @@ public class EditorInputHandler extends InputHandler {
             double[] Y = {0};
 
             glfwGetCursorPos(Window, X, Y);
-            Engine.GetEditorInstance().GetScenePicker().GetObjectID((int)X[0], Engine.GetWindowHeight() - (int)Y[0]);
+            Engine.GetEditorInstance().SelectObject(Engine.GetEditorInstance().GetScenePicker().GetObjectID((int)X[0], Engine.GetWindow().GetWindowHeight() - (int)Y[0]));
+            return true;
+        } else if(Button == GLFW_MOUSE_BUTTON_LEFT && Action == GLFW_RELEASE) {
+
             return true;
         }
 
-        return false;
+        return super.HandleGLFMouseWInputs(Window, Button, Action, Mods);
     }
 }

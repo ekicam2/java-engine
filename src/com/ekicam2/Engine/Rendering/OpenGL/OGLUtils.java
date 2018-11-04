@@ -1,6 +1,5 @@
 package com.ekicam2.Engine.Rendering.OpenGL;
 
-import com.ekicam2.Engine.Rendering.Material;
 import com.ekicam2.Engine.Rendering.PixelFormat;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL45;
@@ -9,7 +8,7 @@ import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 
 public class OGLUtils {
-    public static int PixelFormatToOGL(PixelFormat InPixelFormat) {
+    static int PixelFormatToOGL(PixelFormat InPixelFormat) {
         switch (InPixelFormat) {
             case RGB_8:
                 return GL45.GL_RGB8I;
@@ -25,7 +24,20 @@ public class OGLUtils {
         }
     }
 
-    public static String[] GetAllUniformsForMaterial(Material MaterialToLookIn) {
+    static int GetOGLTextureType(Texture.TextureType InType) {
+        switch (InType){
+            case Texture2D:
+                return GL45.GL_TEXTURE_2D;
+
+            default:
+                System.err.println(InType.toString() + " not implemented yet");
+                break;
+        }
+
+        return -1;
+    }
+
+    static String[] GetAllUniformsForMaterial(Material MaterialToLookIn) {
         {
             String Returner[] = null;
             int[] count = {0};

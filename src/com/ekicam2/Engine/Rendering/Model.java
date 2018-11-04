@@ -1,5 +1,6 @@
 package com.ekicam2.Engine.Rendering;
 
+import com.ekicam2.Engine.Rendering.OpenGL.Material;
 import com.ekicam2.Engine.Transform;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.assimp.AIMesh;
