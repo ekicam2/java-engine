@@ -14,10 +14,9 @@ public final class Engine {
     private Renderer MainRenderer = null;
     private Editor EditorInstance = null;
     private IInputHandler InputHandler = null;
+    private Mouse Mouse = new Mouse();
     //TODO: Scenes manager
     private Scene CurrentScene = new Scene();
-
-    public boolean test = false;
 
     private long LastUpdateTimestamp;
     private float DeltaTime;
@@ -33,6 +32,7 @@ public final class Engine {
         return EditorInstance;
     }
     public Scene GetCurrentScene() { return CurrentScene; }
+    public Mouse GetMouse() { return Mouse; }
 
     public boolean Init() {
         if(!InitGLFW()) {
@@ -57,7 +57,7 @@ public final class Engine {
         return true;
     }
     public void Run() {
-        /* debug playground */
+    /* debug playground */
         CurrentScene.AddModel(MeshLoader.LoadOBJ("resources\\Models\\OBJ format\\chest.obj"));
         CurrentScene.GetModels().get(0).Transform.SetPosition(new Vector3f(0.0f, -0.0f, 520.0f));
         /* debug playground end */
@@ -65,15 +65,9 @@ public final class Engine {
         while ( !glfwWindowShouldClose(MainWindow.GetHandle()) ) {
             UpdateDeltaTime();
             glfwPollEvents();
+            EditorInstance.Update(GetDeltaTime());
             CurrentScene.Update(GetDeltaTime());
             MainRenderer.RenderScene(CurrentScene);
-
-            if(test) {
-                var SelectedObj = GetEditorInstance().GetSelectedObject();
-                if(SelectedObj != null){
-                    SelectedObj.Transform.Translate(new Vector3f(10.0f * GetDeltaTime(), 0.0f, 0.0f));
-                }
-            }
         }
     }
     public void Terminate() {
@@ -109,14 +103,14 @@ public final class Engine {
     }
 
     private void InitInput() {
-        glfwSetKeyCallback(GetWindow().GetHandle(), InputHandler::HandleGLFKeyboardWInputs);
+        glfwSetKeyCallback(GetWindow().GetHandle(), InputHandler::HandleGLFKeyboardInputs);
         //(window, key, scancode, action, mods) -> {
-        //    HandleGLFKeyboardWInputs(window, key, scancode, action, mods);
+        //    HandleGLFKeyboardInputs(window, key, scancode, action, mods);
         //});
 
-        glfwSetMouseButtonCallback(GetWindow().GetHandle(), InputHandler::HandleGLFMouseWInputs);
+        glfwSetMouseButtonCallback(GetWindow().GetHandle(), InputHandler::HandleGLFMouseInputs);
         //(Window, Button, Action, Mods) -> {
-        //    HandleGLFMouseWInputs(Window, Button, Action, Mods);
+        //    HandleGLFMouseInputs(Window, Button, Action, Mods);
         //});
     }
 }

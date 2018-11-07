@@ -14,16 +14,20 @@ public class Editor {
         return CurrentSelectedModel;
     }
 
-
     public Editor(Engine InEngine) {
         Engine = InEngine;
         IInputHandler = new EditorIInputHandler(Engine);
         ScenePicker = new ObjectPicker(Engine);
     }
 
+    public void Update(float DeltaTime) {
+    }
+
     public void SelectObject(int ObjectID) {
         if(ObjectID != 0){
             CurrentSelectedModel = Engine.GetCurrentScene().GetModels().get(0);
+        } else {
+            CurrentSelectedModel = null;
         }
     }
 

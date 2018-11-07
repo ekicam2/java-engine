@@ -8,6 +8,6 @@ public abstract class IInputHandler {
         Engine = InEngine;
     }
 
-    public abstract boolean HandleGLFKeyboardWInputs(long Window, int Key, int Scancode, int Action, int Mods);
-    public abstract boolean HandleGLFMouseWInputs(long Window, int Button, int Action, int Mods);
+    public abstract boolean HandleGLFKeyboardInputs(long Window, int Key, int Scancode, int Action, int Mods);
+    public abstract boolean HandleGLFMouseInputs(long Window, int Button, int Action, int Mods);
 }
