@@ -7,11 +7,11 @@ import org.lwjgl.opengl.GL45;
 import java.nio.FloatBuffer;
 
 
-public class Material implements OGLWrapper {
+public class Program implements OGLWrapper {
     private int Handle;
     private boolean bIsLinked = false;
 
-    public Material(Shader VertexShader, Shader FragmentShader) {
+    public Program(Shader VertexShader, Shader FragmentShader) {
         Handle = GL45.glCreateProgram();
         AddShader(VertexShader);
         AddShader(FragmentShader);

@@ -1,4 +1,4 @@
-package com.ekicam2.Engine;
+package com.ekicam2.Engine.Components;
 
 import org.joml.*;
 

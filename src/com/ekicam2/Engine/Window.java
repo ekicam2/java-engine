@@ -1,6 +1,7 @@
 package com.ekicam2.Engine;
 
 import org.lwjgl.glfw.GLFWVidMode;
+import org.lwjgl.opengl.GL;
 import org.lwjgl.system.MemoryStack;
 
 import java.nio.IntBuffer;
@@ -67,14 +68,15 @@ public class Window {
             );
         } // the stack frame is popped automatically
 
-        // Make the OpenGL context current
-        glfwMakeContextCurrent(Window);
-        // Enable v-sync
-        glfwSwapInterval(1);
+        glfwMakeContextCurrent(NULL);
 
         // Make the Window visible
         glfwShowWindow(Window);
+        /*
+        GL.createCapabilities();
 
+        glfwMakeContextCurrent(NULL);
+*/
         return true;
     }
 

@@ -37,7 +37,7 @@ public class OGLUtils {
         return -1;
     }
 
-    static String[] GetAllUniformsForMaterial(Material MaterialToLookIn) {
+    static String[] GetAllUniformsForMaterial(Program MaterialToLookIn) {
         {
             String Returner[] = null;
             int[] count = {0};

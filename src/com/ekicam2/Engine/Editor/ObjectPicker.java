@@ -1,6 +1,5 @@
 package com.ekicam2.Engine.Editor;
 
-import com.ekicam2.Engine.Engine;
 import com.ekicam2.Engine.Rendering.OpenGL.BindingPolicy;
 import com.ekicam2.Engine.Rendering.OpenGL.FBO;
 import com.ekicam2.Engine.Rendering.OpenGL.RBO;
@@ -8,29 +7,27 @@ import com.ekicam2.Engine.Rendering.PixelFormat;
 import org.lwjgl.opengl.GL45;
 
 public class ObjectPicker {
-    private Engine Engine;
+    private Editor Editor;
 
-    //TODO: MOAR ABSTRACTION!!111!
-    private FBO Framebuff = new FBO();
-    private RBO Renderbuff = new RBO(RBO.AttachmentType.Color, 0);
+    //TODO: FBO and RBO shouldn't be known in here!
+    private FBO Framebuff = null;
+    private RBO Renderbuff = null;
 
-    public ObjectPicker(Engine InEngine) {
-        Engine = InEngine;
-        Renderbuff.Allocate(Engine.GetWindow().GetWindowWidth(), Engine.GetWindow().GetWindowHeight(), PixelFormat.RGB_32);
+    public ObjectPicker(Editor InEditor) {
+        Framebuff = new FBO();
+        Renderbuff = new RBO(RBO.AttachmentType.Color, 0);
+
+        Editor = InEditor;
+        Renderbuff.Allocate(Editor.GetEngine().GetWindow().GetWindowWidth(), Editor.GetEngine().GetWindow().GetWindowHeight(), PixelFormat.RGB_32);
         Renderbuff.BindToFrameBuffer(Framebuff, BindingPolicy.Write);
     }
 
     public void PrepareForRender() {
         Framebuff.Bind(BindingPolicy.Write);
-        GL45.glClear(GL45.GL_COLOR_BUFFER_BIT);
-    }
-
-    public void CleanupAfterRender() {
-        Framebuff.Unbind();
+        GL45.glClear(GL45.GL_COLOR_BUFFER_BIT | GL45.GL_DEPTH_BUFFER_BIT);
     }
 
     int GetObjectID(int X, int Y) {
-
         Framebuff.Bind(BindingPolicy.Read);
         GL45.glReadBuffer(Renderbuff.GetOGLAttachmentType());
 
@@ -41,8 +38,8 @@ public class ObjectPicker {
         Framebuff.Unbind();
         GL45.glReadBuffer(GL45.GL_NONE);
 
-        System.err.println(X + " " + Y);
-        System.out.println(Pixel[0] + ", " + Pixel[1] + ", " + Pixel[2]);
+        // System.err.println(X + " " + Y);
+        // System.out.println(Pixel[0] + ", " + Pixel[1] + ", " + Pixel[2]);
         return (int)Pixel[2];
     }
 

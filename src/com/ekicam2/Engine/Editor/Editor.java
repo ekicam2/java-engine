@@ -1,12 +1,20 @@
 package com.ekicam2.Engine.Editor;
 
 import com.ekicam2.Engine.Engine;
-import com.ekicam2.Engine.IInputHandler;
-import com.ekicam2.Engine.Rendering.Model;
+import com.ekicam2.Engine.Inputs.IInputHandler;
+import com.ekicam2.Engine.Components.Model;
+
+//TODO: moving camera
+//TODO: undo redo, tasks encapsulation
+
+
+
 
 public class Editor {
     private Engine Engine;
-    private ObjectPicker ScenePicker;
+    public Engine GetEngine() { return Engine; }
+
+    ObjectPicker ScenePicker;
     private IInputHandler IInputHandler;
     //temp here
     private Model CurrentSelectedModel = null;
@@ -17,20 +25,17 @@ public class Editor {
     public Editor(Engine InEngine) {
         Engine = InEngine;
         IInputHandler = new EditorIInputHandler(Engine);
-        ScenePicker = new ObjectPicker(Engine);
+        ((EditorIInputHandler) IInputHandler).Editor = this;
+        //ScenePicker = new ObjectPicker(this);
     }
 
-    public void Update(float DeltaTime) {
-    }
-
-    public void SelectObject(int ObjectID) {
+    private void SelectObject(int ObjectID) {
         if(ObjectID != 0){
-            CurrentSelectedModel = Engine.GetCurrentScene().GetModels().get(0);
+
         } else {
             CurrentSelectedModel = null;
         }
     }
 
     public IInputHandler GetInputHandler() { return IInputHandler; }
-    public ObjectPicker GetScenePicker() { return ScenePicker; }
 }
