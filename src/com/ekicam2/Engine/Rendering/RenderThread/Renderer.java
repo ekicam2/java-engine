@@ -1,35 +1,66 @@
 package com.ekicam2.Engine.Rendering.RenderThread;
 
-import com.ekicam2.Engine.EngineUtils.EngineUtils;
+import com.ekicam2.Engine.GameFoundation.Components.Camera;
 import com.ekicam2.Engine.Rendering.OpenGL.Program;
-import com.ekicam2.Engine.Rendering.OpenGL.Shader;
 import com.ekicam2.Engine.Rendering.OpenGL.VAO;
 import com.ekicam2.Engine.Window;
+import org.joml.Matrix4f;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GL45;
 
+import java.util.ArrayList;
 import java.util.List;
 
 //TODO: lights
 //TODO: shadows
-//TODO: make Renderer TOTALY INDEPENDENT FROM ENGINE
 
 class Renderer {
+    public static class RenderObject {
+        RenderObject(VAO InVAO, Program InProgram, Matrix4f InModel) {
+            VAO = InVAO;
+            Program = InProgram;
+            Model = InModel;
+        }
+
+        RenderObject(VAO InVAO, Program InProgram) {
+            VAO = InVAO;
+            Program = InProgram;
+            Model = new Matrix4f().identity();
+        }
+
+        VAO VAO;
+        Program Program;
+        Matrix4f Model;
+    }
+
+    public static class RenderScene {
+        RenderScene() {
+            ObjectsToRender = new ArrayList<>();
+        }
+
+        boolean IsValid() {
+            if(Camera == null || ObjectsToRender == null)
+                return false;
+
+            return true;
+        }
+
+        Camera Camera;
+        List<RenderObject> ObjectsToRender;
+    }
+
     public enum RenderMode {
         Wireframe,
-        WireframeWithVertices,
         Shaded
     }
 
     public RenderMode Mode = RenderMode.Shaded;
 
-    private Program newmat = null;
-    private Program objid  = null;
+
 
     Window Window = null;
 
-    //TODO: create materials manager
     public Renderer(Window InWindow){
         Window = InWindow;
 
@@ -44,52 +75,40 @@ class Renderer {
         GLFW.glfwSwapInterval(1);
 
         GL45.glViewport(0, 0, Window.GetWindowWidth(), Window.GetWindowHeight());
-
-        Shader vsShader = new Shader(Shader.Type.Vertex, EngineUtils.ReadFromFile("resources\\Shaders\\SimpleVertex.vs"));
-        Shader fsShader = new Shader(Shader.Type.Fragment, EngineUtils.ReadFromFile("resources\\Shaders\\SimpleFragment.fs"));
-        newmat = new Program(vsShader, fsShader);
-        newmat.BindAttrib(0, "position");
-        fsShader.Free();
-
-        Shader fsIdShader = new Shader(Shader.Type.Fragment, EngineUtils.ReadFromFile("resources\\Shaders\\ObjID.fs"));
-        objid = new Program(vsShader, fsIdShader);
-        objid.BindAttrib(0, "position");
-        vsShader.Free();
-        fsIdShader.Free();
     }
 
     public void Free() {
-         newmat.Free();
-         objid.Free();
+
     }
 
-    public void RenderScene(List<RenderingThread.Entity> SceneToRender) {
+    public void RenderScene(RenderScene SceneToRender) {
         PrepareFrame();
         SetupRendererDependingOnMode();
 
-        /*
-        // fist phase render to the default Framebuffer
-        for(Model ModelEntity: SceneToRender.GetModels()) {
-            Matrix4f MVP = new Matrix4f();
-            SceneToRender.GetCurrentCamera().GetViewProjection().mul(ModelEntity.Transform.GetModel(), MVP);
+        if(!SceneToRender.IsValid())
+            return;
 
-            for(var Mesh : ModelEntity.GetMeshes())
+        // fist phase render to the default Framebuffer
+        for(RenderObject ObjectToRender : SceneToRender.ObjectsToRender) {
+            Matrix4f MVP = new Matrix4f();
+
+            var tempoffset = new Matrix4f();
+            tempoffset.setTranslation(0.0f, 0.0f, 160.0f);
+
+            SceneToRender.Camera.GetViewProjection().mul(ObjectToRender.Model, MVP);
+            //for(var Mesh : ObjectToRender.GetMeshes())
             {
-                Program MaterialToUse = null;//ModelEntity.GetMaterial(Mesh.GetMaterialIndex());
-                if(MaterialToUse == null) {
-                    MaterialToUse = newmat;
-                }
+                Program MaterialToUse = ObjectToRender.Program;//ModelEntity.GetMaterial(Mesh.GetMaterialIndex());
                 MaterialToUse.Bind();
 
                 MaterialToUse.BindUniform("mvp", MVP);
                 MaterialToUse.BindUniform("in_color", 0.85f,0.30f, 0.2f);
-                //RenderVAO(Mesh.GetVAO());
+                RenderVAO(ObjectToRender.VAO);
             }
         }
 
 
-        if(Engine.bWithEditor)
-        if(false)
+        /*if(false)
         {
          //   Engine.GetEditorInstance().PrepareForRendering();
             Program MaterialToUse = objid;
@@ -110,8 +129,8 @@ class Renderer {
 
             //  GL45.glBindFramebuffer(GL45.GL_DRAW_FRAMEBUFFER, 0);
 
-        }
-        */
+        }*/
+
         Present();
     }
 
@@ -134,11 +153,6 @@ class Renderer {
         switch (Mode) {
             case Wireframe:
                 GL45.glPolygonMode(GL45.GL_FRONT_AND_BACK, GL45.GL_LINE);
-                break;
-            case WireframeWithVertices:
-                //TODO: WireframeWithVertices second pass
-                //
-                //
                 break;
             case Shaded:
                 GL45.glPolygonMode(GL45.GL_FRONT_AND_BACK, GL45.GL_FILL);

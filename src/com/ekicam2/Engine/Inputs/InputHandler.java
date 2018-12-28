@@ -1,6 +1,5 @@
 package com.ekicam2.Engine.Inputs;
 
-import com.ekicam2.Engine.Mouse;
 import org.joml.Vector2i;
 
 import static org.lwjgl.glfw.GLFW.*;
@@ -10,7 +9,7 @@ public class InputHandler extends IInputHandler {
         super(InEngine);
     }
 
-    protected com.ekicam2.Engine.Mouse Mouse = new Mouse();
+    protected com.ekicam2.Engine.Inputs.Mouse Mouse = new Mouse();
 
     public boolean HandleGLFKeyboardInputs(long Window, int Key, int Scancode, int Action, int Mods) {
         return false;

@@ -1,28 +1,34 @@
-package com.ekicam2.Engine.Rendering;
+package com.ekicam2.Engine.GameFoundation;
 
-import com.ekicam2.Engine.Components.Camera;
-import com.ekicam2.Engine.Components.Model;
+import com.ekicam2.Engine.GameFoundation.Components.Camera;
+import com.ekicam2.Engine.GameFoundation.Objects.DrawableObject;
+import com.ekicam2.Engine.GameFoundation.Objects.GameObject;
 
 import java.util.ArrayList;
 import java.util.List;
 
-class Scene {
-    //TODO: split object from it's graphics interpretation
-    private List<Model> Models = new ArrayList<>();
+public class Scene {
+    private List<DrawableObject> GameObjects = new ArrayList<>();
     private List<Camera> Cameras = new ArrayList<>();
     private int CurrentCameraIndex = 0;
 
     public void Update(float DeltaTime) {
-
-    }
-
-    public void Free() {
-        Models.forEach((model -> model.Free()));
+        for(var Object : GameObjects) {
+            Object.Update(DeltaTime);
+        }
     }
 
     public int AddCamera(Camera CameraToAdd) {
         Cameras.add(CameraToAdd);
         return Cameras.size() - 1;
+    }
+
+    public void AddDrawable(DrawableObject DrawableToAdd) {
+        GameObjects.add(DrawableToAdd);
+    }
+
+    public List<DrawableObject> GetDrawables() {
+        return GameObjects;
     }
 
     public void SetActiveCamera(int CameraIndex) {
@@ -35,13 +41,5 @@ class Scene {
         }
 
         return null;
-    }
-
-    public void AddModel(Model ModelToAdd) {
-        Models.add(ModelToAdd);
-    }
-
-    public List<Model> GetModels() {
-        return Models;
     }
 }

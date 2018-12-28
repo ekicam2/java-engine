@@ -1,4 +1,4 @@
-package com.ekicam2.Engine;
+package com.ekicam2.Engine.Inputs;
 
 import org.joml.Vector2i;
 

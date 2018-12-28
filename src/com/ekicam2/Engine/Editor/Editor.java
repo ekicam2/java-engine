@@ -2,13 +2,7 @@ package com.ekicam2.Engine.Editor;
 
 import com.ekicam2.Engine.Engine;
 import com.ekicam2.Engine.Inputs.IInputHandler;
-import com.ekicam2.Engine.Components.Model;
-
-//TODO: moving camera
-//TODO: undo redo, tasks encapsulation
-
-
-
+import com.ekicam2.Engine.GameFoundation.Objects.GameObject;
 
 public class Editor {
     private Engine Engine;
@@ -17,8 +11,8 @@ public class Editor {
     ObjectPicker ScenePicker;
     private IInputHandler IInputHandler;
     //temp here
-    private Model CurrentSelectedModel = null;
-    public Model GetSelectedObject() {
+    private GameObject CurrentSelectedModel = null;
+    public GameObject GetSelectedObject() {
         return CurrentSelectedModel;
     }
 

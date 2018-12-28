@@ -6,5 +6,5 @@ out vec3 color;
 
 void main()
 {
-    color = in_color;
+    color = vec3(0.06, 0.15, 0.99);
 }

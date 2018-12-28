@@ -9,7 +9,6 @@ import org.lwjgl.opengl.GL45;
 public class ObjectPicker {
     private Editor Editor;
 
-    //TODO: FBO and RBO shouldn't be known in here!
     private FBO Framebuff = null;
     private RBO Renderbuff = null;
 

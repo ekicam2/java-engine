@@ -1,7 +1,6 @@
 package com.ekicam2.Engine;
 
 import org.lwjgl.glfw.GLFWVidMode;
-import org.lwjgl.opengl.GL;
 import org.lwjgl.system.MemoryStack;
 
 import java.nio.IntBuffer;
@@ -9,7 +8,6 @@ import java.nio.IntBuffer;
 import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.glfw.GLFW.glfwShowWindow;
-import static org.lwjgl.glfw.GLFW.glfwSwapInterval;
 import static org.lwjgl.system.MemoryStack.stackPush;
 import static org.lwjgl.system.MemoryUtil.NULL;
 
@@ -72,11 +70,7 @@ public class Window {
 
         // Make the Window visible
         glfwShowWindow(Window);
-        /*
-        GL.createCapabilities();
 
-        glfwMakeContextCurrent(NULL);
-*/
         return true;
     }
 

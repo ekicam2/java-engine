@@ -1,15 +1,14 @@
-package com.ekicam2.Engine.Components;
+package com.ekicam2.Engine.GameFoundation.Components;
 
 import org.joml.*;
 
 import java.lang.Math;
 
 public class Transform {
-    public final static Vector3f UP = new Vector3f(0.0f, 1.0f, 0.0f);
     public final static Vector3f RIGHT = new Vector3f(1.0f, 0.0f, 0.0f);
-    public final static Vector3f FORWARD = new Vector3f(0.0f, .0f, 1.0f);
+    public final static Vector3f UP = new Vector3f(0.0f, 1.0f, 0.0f);
+    public final static Vector3f FORWARD = new Vector3f(0.0f, 0.0f, 1.0f);
 
-    //TODO: scale maybe :P
     private Matrix4f Model = new Matrix4f();
 
     private Vector3f Position = new Vector3f();
@@ -77,6 +76,16 @@ public class Transform {
         Model.setRotationXYZ(RotationEuler.x, RotationEuler.y, RotationEuler.z);
 
         bDirty = false;
+    }
+
+    public Vector3f GetForwardVector() {
+        var Forward = Transform.FORWARD;
+
+        Forward.rotateX((float)Math.toRadians(GetRotation().x));
+        Forward.rotateY((float)Math.toRadians(GetRotation().y));
+        Forward.rotateZ((float)Math.toRadians(GetRotation().z));
+
+        return Forward.normalize();
     }
 
 }
